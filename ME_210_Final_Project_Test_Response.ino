@@ -2,10 +2,10 @@ extern States_t state;
 extern int GAME_TIMER;
 extern int TURN_TIMER;
 extern int IGNITION_ON_TIMER;
+extern int DISPENSING_TIMER;
 extern bool TURN_COMPLETE;
 extern bool IGNITION_REVERSE_COMPLETE;
 extern bool DISPENSING_COMPLETE;
-extern bool DISPENSING_TIMER;
 
 /************************ MAP DISTANCE DEFINITIONS ********************/
 float START_ZONE_LENGTH = 40.64; // in centimeters (16 inches)
@@ -125,7 +125,7 @@ void RespToLaneDriftRight(void) {
 bool TestForUltraSonicsEqual(void) {
   float front_reading = getUltraSonicFront();
   float back_reading = getUltraSonicBack();
-  return abs(MAP_LENGTH - (getUltraSonicFront + getUltraSonicBack + ROBOT_LENGTH)) < ULTRA_SONIC_DIST_THRESHOLD;
+  return abs(MAP_LENGTH - (getUltraSonicFront() + getUltraSonicBack() + ROBOT_LENGTH)) < ULTRA_SONIC_DIST_THRESHOLD;
 }
 
 
@@ -333,7 +333,7 @@ bool TestForAtPotIntersectionFromBurner(void){
 
 void RespToAtPotIntersectionFromBurner(void){
   ITimer2.attachInterrupt(TURN_TIMER, TurnTimerHandler);
-  state = DISPENSE_BALL_TURN_RIGHT;
+  state = DISPENSE_BALL_TURN_LEFT;
 }
 
 

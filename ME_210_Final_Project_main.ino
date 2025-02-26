@@ -34,8 +34,8 @@ typedef enum {
   INIT_ORIENT_TURN_LEFT, ORIENT_DRIVE_FORWARD, ORIENT_TURN_RIGHT, ORIENT_TURN_LEFT,
   GET_POT_TURN_RIGHT, GET_POT_TURN_LEFT, GET_POT_DRIVE_FORWARD, TURN_ON_IGNITION_TURN_RIGHT,
   TURN_ON_IGNITION_REVERSE, DISPENSE_BALL_DRIVE_FORWARD, DISPENSE_BALL_TURN_LEFT,
-  DISPENSE_BALL_OPEN_GATE, DISPENSE_BALL_CLOSE_GATE, TURN_OFF_IGNITION_REVERSE,
-  TURN_OFF_IGNITION_TURN_LEFT, WAITING_FOR_GAME_END, GAME_END
+  DISPENSE_BALL_OPEN_GATE, DISPENSE_BALL_WAIT , DISPENSE_BALL_CLOSE_GATE, 
+  TURN_OFF_IGNITION_REVERSE, TURN_OFF_IGNITION_TURN_LEFT, WAITING_FOR_GAME_END, GAME_END
 } States_t;
 
 
@@ -183,7 +183,7 @@ void loop()
      * This state is used to turn left when approaching the pot to dispense balls
      */
     case DISPENSE_BALL_TURN_LEFT:
-      handleDispenseBallDTurnLeft();
+      handleDispenseBallTurnLeft();
       // Serial.println("State DISPENSE_BALL_TURN_LEFT");
       break;
     /*
@@ -198,9 +198,9 @@ void loop()
      * This is the state that will wait for balls to roll out before
      * closing the gate
      */
-     case DISPENSE_BALL_WAIT_GATE:
-     handleDispenseBallOpenGate();
-     // Serial.println("State DISPENSE_BALL_OPEN_GATE");
+     case DISPENSE_BALL_WAIT:
+     handleDispenseBallWait();
+     // Serial.println("State DISPENSE_BALL_WAIT");
      break;
     /*
      * This is the state that will close the gate after the balls have been dispensed

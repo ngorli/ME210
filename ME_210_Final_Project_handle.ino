@@ -1,7 +1,7 @@
 extern States_t state;
 extern bool TURN_COMPLETE;
 extern bool IGNITION_REVERSE_COMPLETE;
-extern bool bool DISPENSING_COMPLETE;
+extern bool DISPENSING_COMPLETE;
 
 
 /*************************** OREINTATION HANDLING *******************/
