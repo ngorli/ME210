@@ -1,6 +1,8 @@
 extern States_t state;
 extern bool TURN_COMPLETE;
 extern bool IGNITION_REVERSE_COMPLETE;
+extern bool bool DISPENSING_COMPLETE;
+
 
 /*************************** OREINTATION HANDLING *******************/
 
@@ -154,6 +156,8 @@ void handleDispenseBallDriveForward(void)
   rightMotorForward();
   leftMotorForward();
   if(TestForFrontLimitSwitchTriggered()){
+    rightMotorOff();
+    leftMotorOff();
     state = DISPENSE_BALL_OPEN_GATE;
   }
   if (TestForAtPotIntersectionFromBurner()) RespToAtPotIntersectionFromBurner();
@@ -182,15 +186,23 @@ void handleDispenseBallTurnLeft(void)
  */
 void handleDispenseBallOpenGate(void)
 {
-  rightMotorOff();
-  leftMotorOff();
-  dispenserMotorForward();
-  if(TestForDispenserFrontLimitSwitchTriggered()){
-    state = DISPENSE_BALL_CLOSE_GATE;
-  }
+  dispenserOpenGate();
+  StartGateTimer();
+  state = DISPENSE_BALL_WAIT;
 }
 
 
+/*
+ * This function is used to wait to close the gate
+ */
+void handleDispenseBallWait(void)
+{
+  if(DISPENSING_COMPLETE){
+    DISPENSING_COMPLETE = false;
+    state = DISPENSE_BALL_CLOSE_GATE;
+  }
+}
+ 
 
 
 /*
@@ -199,13 +211,8 @@ void handleDispenseBallOpenGate(void)
  */
 void handleDispenseBallCloseGate(void)
 {
-  rightMotorOff();
-  leftMotorOff();
-  dispenserMotorBackward();
-  if(TestForDispensorBackLimitSwitchTriggered()){
-    dispenserMotorOff();
-    state = TURN_OFF_IGNITION_REVERSE;
-  }
+  dispenserCloseGate();
+  state = TURN_OFF_IGNITION_REVERSE;
 }
 
 

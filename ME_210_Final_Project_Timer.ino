@@ -4,12 +4,14 @@
 /************** Timer Action Definitions *******************/
 bool TURN_COMPLETE = false;
 bool IGNITION_REVERSE_COMPLETE = false;
+bool DISPENSING_COMPLETE = false;
 
 
 /*--------------Time Duration Definitions------------------------*/
 int GAME_TIMER = 130000;
 int TURN_TIMER = 100; // PLACEHOLDER
 int IGNITION_ON_TIMER = 1500;  // PLACEHOLDER
+int DISPENSING_TIMER = 1500; // PLACEHOLDER
 
 
 /*
@@ -43,6 +45,14 @@ void IgnitionOnTimerHandler()
 
 
 
-
+/*
+ * This timer is used to measure the amount of needed to reverse
+ * before approaching the ignition
+ */
+ void DispensingTimerHandler()
+ {
+   DISPENSING_COMPLETE = true;
+ }
+ 
 
 

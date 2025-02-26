@@ -4,14 +4,14 @@ extern int TURN_TIMER;
 extern int IGNITION_ON_TIMER;
 extern bool TURN_COMPLETE;
 extern bool IGNITION_REVERSE_COMPLETE;
-
-
-
+extern bool DISPENSING_COMPLETE;
+extern bool DISPENSING_TIMER;
 
 /************************ MAP DISTANCE DEFINITIONS ********************/
 float START_ZONE_LENGTH = 40.64; // in centimeters (16 inches)
 float START_ZONE_WIDTH = 40.64; // in centimeters (16 inches)
-
+float MAP_LENGTH = 91.44;  // in centimeters (36 inches)
+float ROBOT_LENGTH =  25.40; // in centimeters (10 inches)
 
 /************************** DISTANCE THRESHOLDS **********************/
 float ULTRA_SONIC_DIST_THRESHOLD = 0.1; // PLACEHOLDER +- Threshold for determing what distances are equal
@@ -22,8 +22,6 @@ float CUSTOMER_WINDOW_THRESHOLD = 100; // PLAECHOLDER Threshold for determing if
 float POT_AT_BURNER_THRESHOLD = 100;  // PLAECHOLDER Threshold for determing if the pot has reached the burner
 
 
-
-
 /*********************** STATE DEFINITIONS ************************/
 bool LEFT_OF_TAPE = false; // Used to determine which side of the tape you are on
 bool ORIENT = false; // used to determine if orienting is complete
@@ -31,35 +29,28 @@ bool HAVE_POT = false; // used to determine if we have the pot for get pot state
 bool SEARCHING_FOR_BURNER = false; // used to determine if we should be searching for the pot
 
 
-
-
-
-
 /********************* LIMIT SWITCH FUNCTIONS *********************/
 
 
 /*
- *
+ * Returns true if the tail limit switch is triggered and false otherwise
  */
 bool TestForTailLimitSwitchTriggered(void) {
   return (TAIL_LIMIT_SWITCH == HIGH);
 }
 
 
-
-
+/*
+ * Returns true if the front limit switc is triggered and false otherwise
+ */
 bool TestForFrontLimitSwitchTriggered(void) {
   return (FRONT_LIMIT_SWITCH == HIGH);
 }
 
 
-
-
 bool TestForDispenserFrontLimitSwitchTriggered(void) {
   return (DISPENSER_FRONT_LIMIT_SWITCH == HIGH);
 }
-
-
 
 
 bool TestForDispensorBackLimitSwitchTriggered(void) {
@@ -68,35 +59,31 @@ bool TestForDispensorBackLimitSwitchTriggered(void) {
 
 
 
-
-
-
 /************************** SENSOR FUNCTIONS **********************/
+
+
 /*
- * These are test for if limit switches or tape sensors have been triggered
+ * Returns true if the right tape sensor is triggered and false otherwise
  */
-
-
 bool TestForRightTapeSensorTriggered(void) {
   // return RIGHT_TAPE_SENSOR > RIGHT_TAPE_SENSOR_THRESHOLD;
 }
 
 
-
-
+/*
+ * Returns true if the left tape sensor is triggered and false otherwise
+ */
 bool TestForLeftTapeSensorTriggered(void) {
   // return LEFT_TAPE_SENSOR > LEFT_TAPE_SENSOR_THRESHOLD;
 }
 
 
-
-
+/*
+ * Returns true if the middle tape sensor is triggered and false otherwise
+ */
 bool TestForMiddleTapeSensorTriggered(void) {
   // return MIDDLE_TAPE_SENSOR > MIDDLE_TAPE_SENSOR_THRESHOLD;
 }
-
-
-
 
 
 
@@ -108,13 +95,9 @@ bool TestForLaneDriftLeft(void) {
   return TestForLeftTapeSensorTriggered();
 }
 
-
 void RespToLaneDriftLeft(void) {
  
 }
-
-
-
 
 
 
@@ -125,7 +108,6 @@ bool TestForLaneDriftRight(void) {
   return TestForRightTapeSensorTriggered();
 }
 
-
 void RespToLaneDriftRight(void) {
  
 }
@@ -133,23 +115,22 @@ void RespToLaneDriftRight(void) {
 
 
 
+
 /******************** GENERAL FUNCTIONS ***********************/
 
-
 /*
- *
+ * This function returns if the front and back ultrasonics are equal to
+ * to the length
  */
 bool TestForUltraSonicsEqual(void) {
   float front_reading = getUltraSonicFront();
   float back_reading = getUltraSonicBack();
-  return abs(getUltraSonicFront - getUltraSonicBack) < ULTRA_SONIC_DIST_THRESHOLD;
+  return abs(MAP_LENGTH - (getUltraSonicFront + getUltraSonicBack + ROBOT_LENGTH)) < ULTRA_SONIC_DIST_THRESHOLD;
 }
 
 
-
-
 /*
- *
+ * This function returns true if the back ultrasonic reading is less than the front ultrasonic reading
  */
 bool TestForBackLessThanFront(void) {
   return getUltraSonicBack() < getUltraSonicFront();
@@ -157,25 +138,20 @@ bool TestForBackLessThanFront(void) {
 
 
 /*
- *
+ * This function uses the two prior functions to return true if the pot is facing forwards and
+ * false otherwise
  */
 bool TestForUltraSonicsEqualAndBackLessThanStartZone(void) {
-  if (TestForUltraSonicsEqual() && TestForBackLessThanFront()) {
-    return true;
-  } else {
-    return false;
-  }
+  return (TestForUltraSonicsEqual() && TestForBackLessThanFront());
 }
 
-
-
-
 /*
- *
+ * This function switches the state to drive forward if the orientation test passes
  */
 void RespToUltraSonicsEqualAndBackLessThanStartZone(void) {
   state = ORIENT_DRIVE_FORWARD;
 }
+
 
 
 
@@ -186,7 +162,6 @@ void RespToUltraSonicsEqualAndBackLessThanStartZone(void) {
 bool TestForBackSensorMoreThanStartZone(void) {
   return getUltraSonicBack() > START_ZONE_LENGTH;
 }
-
 
 /*
  *
@@ -210,14 +185,12 @@ void RespToBackSensorMoreThanStartZone(void) {
 
 
 
-
 /*
  *
  */
 bool TestForOriented(void) {
   return TestForMiddleTapeSensorTriggered();
 }
-
 
 void RespToOriented(void) {
   ORIENT = true;
@@ -229,8 +202,6 @@ void RespToOriented(void) {
     state = ORIENT_TURN_RIGHT;
   }
 }
-
-
 
 
 
@@ -251,7 +222,6 @@ void RespToGetPot(void) {
   ITimer2.attachInterrupt(TURN_TIMER, TurnTimerHandler);
   state = GET_POT_TURN_RIGHT;
 }
-
 
 
 
@@ -281,8 +251,6 @@ void RespToAtCustomerWindowIntersection(void) {
 
 
 
-
-
 /*
  *
  */
@@ -294,15 +262,11 @@ bool TestForAtCustomerWindowWall(void) {
   }
 }
 
-
 void RespToAtCustomerWindowWall(void) {
   HAVE_POT = true;
   ITimer2.attachInterrupt(TURN_TIMER, TurnTimerHandler);
   state = GET_POT_TURN_LEFT;
 }
-
-
-
 
 
 
@@ -319,11 +283,14 @@ bool TestForPotOnBurner(void) {
   }
 }
 
-
 void RespToPotOnBurner(void) {
   ITimer2.attachInterrupt(IGNITION_ON_TIMER, IgnitionOnTimerHandler);
   state = TURN_ON_IGNITION_REVERSE;
 }
+
+
+
+
 
 
 
@@ -339,13 +306,18 @@ bool TestForIgnitionStopReversing(void){
   }
 }
 
-
 void RespToIgnitionStopReversing(void){
   ITimer2.attachInterrupt(TURN_TIMER, TurnTimerHandler);
   state = TURN_ON_IGNITION_REVERSE;
 }
 
 
+
+
+
+void StartGateTimer(){
+  ITimer2.attachInterrupt(DISPENSING_TIMER, DispensingTimerHandler);
+}
 
 
 /*
@@ -359,11 +331,14 @@ bool TestForAtPotIntersectionFromBurner(void){
   }
 }
 
-
 void RespToAtPotIntersectionFromBurner(void){
   ITimer2.attachInterrupt(TURN_TIMER, TurnTimerHandler);
   state = DISPENSE_BALL_TURN_RIGHT;
 }
+
+
+
+
 
 
 
@@ -379,14 +354,7 @@ bool TestForInlineWithIgnition(void) {
   }
 }
 
-
 void RespToInlineWithIgnition(void){
   ITimer2.attachInterrupt(TURN_TIMER, TurnTimerHandler);
   state = TURN_OFF_IGNITION_TURN_LEFT;
 }
-
-
-
-
-
-

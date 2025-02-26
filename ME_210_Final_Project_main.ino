@@ -62,7 +62,7 @@ void setup()
 
 
   /*********** BEGIN GAME ************/
-  // PLAY BUZZER
+  playBuzzer();
   ITimer1.attachInterrupt(GAME_TIMER, GameTimerHandler);
   state = INIT_ORIENT_TURN_LEFT;
 
@@ -195,8 +195,15 @@ void loop()
       // Serial.println("State DISPENSE_BALL_OPEN_GATE");
       break;
     /*
-     * This is the state that will dispense balls by closing the gate
-     * once at the pot
+     * This is the state that will wait for balls to roll out before
+     * closing the gate
+     */
+     case DISPENSE_BALL_WAIT_GATE:
+     handleDispenseBallOpenGate();
+     // Serial.println("State DISPENSE_BALL_OPEN_GATE");
+     break;
+    /*
+     * This is the state that will close the gate after the balls have been dispensed
      */
     case DISPENSE_BALL_CLOSE_GATE:
       handleDispenseBallCloseGate();
@@ -210,10 +217,6 @@ void loop()
      * These states are used for turning off the ignition near the end of the game.
      * There is a reverse state and a turn left state
      */
-
-
-
-
     /*
      * This state is used for reversing towards the ignition to turn it off
      */
