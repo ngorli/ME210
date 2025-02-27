@@ -28,9 +28,9 @@ const int FRONT_LIMIT_SWITCH = 5; // PLACEHOLDER
 const int DISPENSER_FRONT_LIMIT_SWITCH = 5; // PLACEHOLDER
 const int DISPENSER_BACK_LIMIT_SWITCH = 5; // PLACEHOLDER
 //Ultrasonic Sensors 
-const int trigBack = 30, echoBack = 31;   // Sensor 1 (Back)
-const int trigFront = 32, echoFront = 33; // Sensor 2 (Front)
-const int trigLeft = 34, echoLeft = 35; //Sensor 3 (left) 
+const int trigBack = 31, echoBack = 30;   // Sensor 1 (Back)
+const int trigFront = 33, echoFront = 32; // Sensor 2 (Front)
+const int trigLeft = 35, echoLeft = 34; //Sensor 3 (left) 
 // Motors 
 const int INPUT1_L = 52; //Left motor
 const int INPUT2_L = 50;
@@ -71,6 +71,16 @@ void setup()
  
   /*********** SET UP DIGITAL READ PINS ************/
   pinMode(START_BUTTON, INPUT);
+
+  
+  pinMode(trigBack, OUTPUT);
+  pinMode(echoBack, INPUT);
+  
+  pinMode(trigFront, OUTPUT);
+  pinMode(echoFront, INPUT);
+  
+  pinMode(trigLeft, OUTPUT);
+  pinMode(echoLeft, INPUT);
 
 
   /*********** SET UP ANALOG WRITE PINS ************/
