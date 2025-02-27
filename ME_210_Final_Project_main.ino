@@ -27,6 +27,21 @@ const int TAIL_LIMIT_SWITCH = 5; // PLACEHOLDER
 const int FRONT_LIMIT_SWITCH = 5; // PLACEHOLDER
 const int DISPENSER_FRONT_LIMIT_SWITCH = 5; // PLACEHOLDER
 const int DISPENSER_BACK_LIMIT_SWITCH = 5; // PLACEHOLDER
+//Ultrasonic Sensors 
+const int trigBack = 30, echoBack = 31;   // Sensor 1 (Back)
+const int trigFront = 32, echoFront = 33; // Sensor 2 (Front)
+const int trigLeft = 34, echoLeft = 35; //Sensor 3 (left) 
+// Motors 
+const int INPUT1_L = 52; //Left motor
+const int INPUT2_L = 50;
+const int ENA_L = 2; //PWM
+const int SPEED_L = 100;
+const int SPEED_R = 100;
+const int INPUT1_R = 49; // Right Motor 
+const int INPUT2_R = 51; // 
+const int ENA_R = 3;
+const int ServoPWM= 4;
+
 
 
 /*---------------State Definitions--------------------------*/
