@@ -1,22 +1,12 @@
-
-/**************************** PLAY BUZZER CONTROL **********************/
-/*
-*
-*/
-void playBuzzer()
-{
-
-}
-
-
-
 /**************************** RIGHT MOTOR CONTROL **********************/
 /*
 *
 */
 void rightMotorForward()
 {
-
+  analogWrite(ENA_R, SPEED_R);
+  digitalWrite(INPUT1_R, HIGH);
+  digitalWrite(INPUT2_R, LOW);  
 }
 
 
@@ -25,8 +15,9 @@ void rightMotorForward()
 */
 void rightMotorBackward()
 {
-
-
+  analogWrite(ENA_R,SPEED_R);
+  digitalWrite(INPUT1_R, LOW);
+  digitalWrite(INPUT2_R, HIGH);  
 }
 
 
@@ -35,8 +26,9 @@ void rightMotorBackward()
 */
 void rightMotorOff()
 {
-
-
+  analogWrite(ENA_L, 0);
+  digitalWrite(INPUT1_R, LOW);
+  digitalWrite(INPUT2_R, LOW);  
 }
 
 
@@ -44,18 +36,22 @@ void rightMotorOff()
 /*
 *
 */
-void leftMotorBackward()
+void leftMotorForward()
 {
-
+  analogWrite(ENA_L, SPEED_L);
+  digitalWrite(INPUT1_L, HIGH);
+  digitalWrite(INPUT2_L, LOW);  
 }
 
 
 /*
 *
 */
-void leftMotorForward()
+void leftMotorBackward()
 {
-
+  analogWrite(ENA_L, SPEED_L);
+  digitalWrite(INPUT1_L, LOW);
+  digitalWrite(INPUT2_L, HIGH);  
 }
 
 
@@ -64,28 +60,7 @@ void leftMotorForward()
 */
 void leftMotorOff()
 {
-
-}
-
-
-
-
-/**************************** DISPENSER MOTOR CONTROL **********************/
-/*
-*
-*/
-void dispenserOpenGate()
-{
-
-}
-
-
-
-
-/*
-*
-*/
-void dispenserCloseGate()
-{
-
+  analogWrite(ENA_L, 0);
+  digitalWrite(INPUT1_L, LOW);
+  digitalWrite(INPUT2_L, LOW);
 }

@@ -1,4 +1,3 @@
-
 /******************** Ultrasonic Sensors ********************/
 /*
  *
@@ -32,10 +31,12 @@ float getUltraSonicFront()
 
 }
 
+
+
 /*
  *
  */
-float getUltraSonicRight()
+float getUltraSonicLeft()
 {
   digitalWrite(trigLeft, LOW);
   delayMicroseconds(2);
@@ -45,14 +46,5 @@ float getUltraSonicRight()
   float duration = pulseIn(echoLeft, HIGH);
   float distance = (duration * 0.0343) / 2; // Convert to cm
   return distance;
-
-}
-
-/*
- *
- */
-float getUltraSonicLeft()
-{
-
 }
 

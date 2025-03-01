@@ -4,7 +4,19 @@ extern bool IGNITION_REVERSE_COMPLETE;
 extern bool DISPENSING_COMPLETE;
 
 
+
+
 /*************************** OREINTATION HANDLING *******************/
+
+/*
+ * This function is used to play the buzzer sound
+ */
+void playBuzzer(void){
+  tone(BUZZER, 1000); // Play 1000Hz (1kHz) tone
+  delay(500);   // Wait 500ms
+  noTone(BUZZER);   // Stop tone
+  delay(500);   
+}
 
 
 /*
@@ -13,10 +25,12 @@ extern bool DISPENSING_COMPLETE;
  */
 void handleInitOrientTurnLeft(void)
 {
-  rightMotorForward();
-  leftMotorBackward();
+  rightMotorBackward();
+  leftMotorForward();
   if(TestForUltraSonicsEqualAndBackLessThanStartZone()) RespToUltraSonicsEqualAndBackLessThanStartZone();
 }
+
+
 
 
 /*
@@ -34,6 +48,8 @@ void handleOrientDriveForward(void)
 }
 
 
+
+
 /*
  * This function is used to turn the bot right in the orienting state
  */
@@ -41,11 +57,19 @@ void handleOrientTurnRight(void)
 {
   rightMotorForward();
   leftMotorBackward();
-  if (TURN_COMPLETE){
-    TURN_COMPLETE = false;
-    state = ORIENT_DRIVE_FORWARD;
+  if (!turnComplete) {
+    if (turnStartTime == 0) { 
+      turnStartTime = millis();
+    }
+
+    if (millis() - turnStartTime >= TURN_TIMER) {
+      turnComplete = true;
+      state = ORIENT_DRIVE_FORWARD;
+    }
   }
 }
+
+
 
 
 /*
@@ -55,14 +79,22 @@ void handleOrientTurnLeft(void)
 {
   rightMotorBackward();
   leftMotorForward();
-  if (TURN_COMPLETE){
-    TURN_COMPLETE = false;
-    state = ORIENT_DRIVE_FORWARD;
+  if (!turnComplete) {
+    if (turnStartTime == 0) { 
+      turnStartTime = millis();
+    }
+    if (millis() - turnStartTime >= TURN_TIMER) {
+      turnComplete = true;
+      state = ORIENT_DRIVE_FORWARD;
+    }
   }
 }
 
 
+
+
 /********************** POT RETRIEVAL HANDLING *******************/
+
 
 /*
  * This function is used to turn the robot to the right during
@@ -72,11 +104,18 @@ void handleGetPotTurnRight(void)
 {
   rightMotorForward();
   leftMotorBackward();
-  if (TURN_COMPLETE){
-    TURN_COMPLETE = false;
-    state = GET_POT_DRIVE_FORWARD;
+  if (!turnComplete) {
+    if (turnStartTime == 0) { 
+      turnStartTime = millis();
+    }
+    if (millis() - turnStartTime >= TURN_TIMER) {
+      turnComplete = true;
+      state = GET_POT_DRIVE_FORWARD;
+    }
   }
 }
+
+
 
 
 /*
@@ -87,11 +126,18 @@ void handleGetPotTurnLeft(void)
 {
   rightMotorBackward();
   leftMotorForward();
-  if (TURN_COMPLETE){
-    TURN_COMPLETE = false;
-    state = GET_POT_DRIVE_FORWARD;
+  if (!turnComplete) {
+    if (turnStartTime == 0) { 
+      turnStartTime = millis();
+    }
+    if (millis() - turnStartTime >= TURN_TIMER) {
+      turnComplete = true;
+      state = GET_POT_DRIVE_FORWARD;
+    }
   }
 }
+
+
 
 
 /*
@@ -109,11 +155,15 @@ void handleGetPotDriveForward(void)
 }
 
 
+
+
 /********************* IGNITION ON HANDLING *********************/
 
 
+
+
 /*
- * This function is used to reverse the robot during the ignition on 
+ * This function is used to reverse the robot during the ignition on
  * sequence. It will reverse for a fixed amount of time to back up
  * from the burner, and will also reverse until the limit switch on
  * the tail is triggered, signifying it has hit the burner
@@ -129,6 +179,8 @@ void handleTurnOnIgnitionReverse(void)
 }
 
 
+
+
 /*
  * This function is used to turn the bot right in the ignition on
  * sequence
@@ -137,17 +189,25 @@ void handleTurnOnIgnitionTurnRight(void)
 {
   rightMotorForward();
   leftMotorBackward();
-  if (TURN_COMPLETE){
-    TURN_COMPLETE = false;
-    state = TURN_ON_IGNITION_REVERSE;
+  if (!turnComplete) {
+    if (turnStartTime == 0) { 
+      turnStartTime = millis();
+    }
+    if (millis() - turnStartTime >= TURN_TIMER) {
+      turnComplete = true;
+      state = TURN_ON_IGNITION_REVERSE;
+    }
   }
 }
 
 
+
+
 /******************** BALL DISPENSING HANDLING ******************/
 
+
 /*
- * This function is used to turn drive the bot forward for dispensing 
+ * This function is used to turn drive the bot forward for dispensing
  * the balls. It is used to reach the interesection from the burner
  * and it is used  to drive up to the pot
  */
@@ -158,10 +218,12 @@ void handleDispenseBallDriveForward(void)
   if(TestForFrontLimitSwitchTriggered()){
     rightMotorOff();
     leftMotorOff();
-    state = DISPENSE_BALL_OPEN_GATE;
+    state = DISPENSE_BALLS;
   }
   if (TestForAtPotIntersectionFromBurner()) RespToAtPotIntersectionFromBurner();
 }
+
+
 
 
 /*
@@ -172,48 +234,30 @@ void handleDispenseBallTurnLeft(void)
 {
   rightMotorForward();
   leftMotorBackward();
-  if (TURN_COMPLETE){
-    TURN_COMPLETE = false;
-    state = DISPENSE_BALL_DRIVE_FORWARD;
+  if (!turnComplete) {
+    if (turnStartTime == 0) { 
+      turnStartTime = millis();
+    }
+    if (millis() - turnStartTime >= TURN_TIMER) {
+      turnComplete = true;
+      state = DISPENSE_BALL_DRIVE_FORWARD;
+    }
   }
 }
-
-
 
 
 /*
  * This function is used to open the gate to dispense the balls
  */
-void handleDispenseBallOpenGate(void)
+void handleDispenseBalls(void)
 {
-  dispenserOpenGate();
-  StartGateTimer();
-  state = DISPENSE_BALL_WAIT;
-}
-
-
-/*
- * This function is used to wait to close the gate
- */
-void handleDispenseBallWait(void)
-{
-  if(DISPENSING_COMPLETE){
-    DISPENSING_COMPLETE = false;
-    state = DISPENSE_BALL_CLOSE_GATE;
-  }
-}
- 
-
-
-/*
- * This function is used to close the gate after the balls
- * have been dispensed
- */
-void handleDispenseBallCloseGate(void)
-{
-  dispenserCloseGate();
+  myServo.write(90);
+  delay(2000);  // Wait for 2 seconds
+  myServo.write(0);
+  delay(2000);  // Wait for 2 seconds
   state = TURN_OFF_IGNITION_REVERSE;
 }
+
 
 
 /*
@@ -230,6 +274,8 @@ void handleTurnOffIgnitionReverse(void)
 }
 
 
+
+
 /*
  * This function is used to turn left when turning off the ignition
  */
@@ -237,11 +283,18 @@ void handleTurnOffIgnitionTurnLeft(void)
 {
   rightMotorForward();
   leftMotorBackward();
-  if (TURN_COMPLETE){
-    TURN_COMPLETE = false;
-    state = TURN_OFF_IGNITION_REVERSE;
+  if (!turnComplete) {
+    if (turnStartTime == 0) { 
+      turnStartTime = millis();
+    }
+    if (millis() - turnStartTime >= TURN_TIMER) {
+      turnComplete = true;
+      state = TURN_OFF_IGNITION_REVERSE;
+    }
   }
 }
+
+
 
 
 /*
@@ -251,7 +304,13 @@ void handleWaitingForGameEnd(void)
 {
   rightMotorOff();
   leftMotorOff();
+  if (gameRunning && (millis() - gameStartTime >= GAME_TIMER)) {
+    gameRunning = false;
+    state = GAME_END;
+  }
 }
+
+
 
 
 /*
@@ -262,7 +321,5 @@ void handleGameEnd(void)
   // play buzzer
   // motor off
 }
-
-
 
 

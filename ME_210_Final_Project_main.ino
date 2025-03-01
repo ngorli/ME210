@@ -4,44 +4,60 @@
  * of the Arduino pins, defines states, and contains the state switching
  */
 
+
+/**************** Library Inclusion *************************/
+#include <Servo.h>
+
+
 /********************* Initialize Timers ********************/
-#define TIMER_INTERRUPT_DEBUG       0
-#define _TIMERINTERRUPT_LOGLEVEL_     0
+const unsigned long GAME_TIMER = 130000; // 130 seconds
+unsigned long gameStartTime = 0;
+bool gameRunning = true;
 
-#define USE_TIMER_1     true
-#define USE_TIMER_2     true
-#include "TimerInterrupt.h"
+// Timer durations
+const unsigned long TURN_TIMER = 2000;
+const unsigned long IGNITION_ON_TIMER = 1500;
+const unsigned long DISPENSING_TIMER = 1500;
+
+// Start times for each action
+unsigned long turnStartTime = 0;
+unsigned long ignitionStartTime = 0;
+unsigned long dispensingStartTime = 0;
+
+// Flags to track when actions are complete
+bool turnComplete = false;
+bool ignitionReverseComplete = false;
+
+/********************** Initialize Servo *******************/
+Servo myServo;
 
 
-/*--------------Constant Definitions------------------------*/
+/******************** Pin Definitions ***********************/
 
-extern int GAME_TIMER;
-
-
-
-/*----------------Pin Definitions---------------------------*/
-
-
-const int START_BUTTON = 5; // PLACEHOLDER
+const int BUZZER = 5; // PLACEHOLDER
 const int TAIL_LIMIT_SWITCH = 5; // PLACEHOLDER
 const int FRONT_LIMIT_SWITCH = 5; // PLACEHOLDER
-const int DISPENSER_FRONT_LIMIT_SWITCH = 5; // PLACEHOLDER
-const int DISPENSER_BACK_LIMIT_SWITCH = 5; // PLACEHOLDER
-//Ultrasonic Sensors 
-const int trigBack = 31, echoBack = 30;   // Sensor 1 (Back)
-const int trigFront = 33, echoFront = 32; // Sensor 2 (Front)
-const int trigLeft = 35, echoLeft = 34; //Sensor 3 (left) 
-// Motors 
-const int INPUT1_L = 52; //Left motor
-const int INPUT2_L = 50;
+
+
+//Ultrasonic Sensors
+const int trigBack = 41, echoBack = 40;   // 41 is trigger-green, 40 is echo-white
+const int trigFront = 39, echoFront = 38; // 40 is trigger-white, 41 is echo-green
+const int trigLeft = 52, echoLeft = 53; // 52 is trigger-white, 53 is echo-green
+
+// Motors
+const int INPUT1_L = 42; //Left motor
+const int INPUT2_L = 43;
 const int ENA_L = 2; //PWM
 const int SPEED_L = 100;
 const int SPEED_R = 100;
-const int INPUT1_R = 49; // Right Motor 
-const int INPUT2_R = 51; // 
+const int INPUT1_R = 44; // Right Motor
+const int INPUT2_R = 45; //
 const int ENA_R = 3;
-const int ServoPWM= 4;
 
+const int SERVO = 10;
+
+
+// Tape sensors
 
 
 /*---------------State Definitions--------------------------*/
@@ -49,12 +65,16 @@ typedef enum {
   INIT_ORIENT_TURN_LEFT, ORIENT_DRIVE_FORWARD, ORIENT_TURN_RIGHT, ORIENT_TURN_LEFT,
   GET_POT_TURN_RIGHT, GET_POT_TURN_LEFT, GET_POT_DRIVE_FORWARD, TURN_ON_IGNITION_TURN_RIGHT,
   TURN_ON_IGNITION_REVERSE, DISPENSE_BALL_DRIVE_FORWARD, DISPENSE_BALL_TURN_LEFT,
-  DISPENSE_BALL_OPEN_GATE, DISPENSE_BALL_WAIT , DISPENSE_BALL_CLOSE_GATE, 
-  TURN_OFF_IGNITION_REVERSE, TURN_OFF_IGNITION_TURN_LEFT, WAITING_FOR_GAME_END, GAME_END
+  DISPENSE_BALLS, TURN_OFF_IGNITION_REVERSE, TURN_OFF_IGNITION_TURN_LEFT, 
+  WAITING_FOR_GAME_END, GAME_END
 } States_t;
 
 
+
+
 States_t state;
+
+
 
 
 void checkGlobalEvents(void) {
@@ -63,37 +83,48 @@ void checkGlobalEvents(void) {
 
 
 
-
-
 void setup()
 {
   Serial.begin(9600);
+
+
+  Serial.println("Start Init");
  
   /*********** SET UP DIGITAL READ PINS ************/
-  pinMode(START_BUTTON, INPUT);
-
-  
   pinMode(trigBack, OUTPUT);
   pinMode(echoBack, INPUT);
-  
+ 
   pinMode(trigFront, OUTPUT);
   pinMode(echoFront, INPUT);
-  
+ 
   pinMode(trigLeft, OUTPUT);
   pinMode(echoLeft, INPUT);
+
+  pinMode(BUZZER, OUTPUT);
+
+  pinMode(TAIL_LIMIT_SWITCH, INPUT);
+  pinMode(FRONT_LIMIT_SWITCH, INPUT);
+
+
+  myServo.attach(SERVO);
+
 
 
   /*********** SET UP ANALOG WRITE PINS ************/
 
 
+
+
   /*********** BEGIN GAME ************/
-  playBuzzer();
-  ITimer1.attachInterrupt(GAME_TIMER, GameTimerHandler);
+  // playBuzzer();
+  gameStartTime = millis();
   state = INIT_ORIENT_TURN_LEFT;
 
 
   Serial.println("Init Done");
 }
+
+
 
 
 void loop()
@@ -120,7 +151,7 @@ void loop()
      */
     case ORIENT_DRIVE_FORWARD:
       handleOrientDriveForward();
-      // Serial.println("State ORIENT_DRIVE_FORWARD");
+      Serial.println("State ORIENT_DRIVE_FORWARD");
       break;
     /*
      * This state is used to turn right and face the tape
@@ -128,7 +159,7 @@ void loop()
      */
     case ORIENT_TURN_RIGHT:
       handleOrientTurnRight();
-      // Serial.println("State ORIENT_DRIVE_RIGHT");
+      Serial.println("State ORIENT_DRIVE_RIGHT");
       break;
     /*
      * This state is used to turn left and face the tape
@@ -136,14 +167,18 @@ void loop()
      */
     case ORIENT_TURN_LEFT:
       handleOrientTurnLeft();
-      // Serial.println("State ORIENT_DRIVE_RIGHT");
+      Serial.println("State ORIENT_DRIVE_RIGHT");
       break;
+
+
 
 
     /*
      * These states are used for getting the pot from its starting location and bringing it to
      * the burner. There is a turn right, left, and forward
      */
+
+
 
 
     /*
@@ -170,6 +205,8 @@ void loop()
       handleGetPotDriveForward();
       // Serial.println("State GET_POT_DRIVE_FORWARD");
       break;
+
+
 
 
     /*
@@ -215,27 +252,11 @@ void loop()
      * This is the state that will dispense balls by opening the gate
      * once at the pot
      */
-    case DISPENSE_BALL_OPEN_GATE:
-      handleDispenseBallOpenGate();
+    case DISPENSE_BALLS:
+      handleDispenseBalls();
       // Serial.println("State DISPENSE_BALL_OPEN_GATE");
       break;
-    /*
-     * This is the state that will wait for balls to roll out before
-     * closing the gate
-     */
-     case DISPENSE_BALL_WAIT:
-     handleDispenseBallWait();
-     // Serial.println("State DISPENSE_BALL_WAIT");
-     break;
-    /*
-     * This is the state that will close the gate after the balls have been dispensed
-     */
-    case DISPENSE_BALL_CLOSE_GATE:
-      handleDispenseBallCloseGate();
-      // Serial.println("State DISPENSE_BALL_CLOSE_GATE");
-      break;
-
-
+    
 
 
     /*
@@ -257,6 +278,8 @@ void loop()
       handleTurnOffIgnitionTurnLeft();
       // Serial.println("State TURN_OFF_IGNITION_TURN_LEFT");
       break;
+
+
 
 
     /*
@@ -283,10 +306,5 @@ void loop()
       Serial.println("SOMETHING IS WRONG, ROBOT IS COOKED :(");
   }
 }
-
-
-
-
-
 
 
