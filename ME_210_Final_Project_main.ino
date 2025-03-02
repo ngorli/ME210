@@ -34,9 +34,9 @@ Servo myServo;
 
 /******************** Pin Definitions ***********************/
 
-const int BUZZER = 5; // PLACEHOLDER
-const int TAIL_LIMIT_SWITCH = 5; // PLACEHOLDER
-const int FRONT_LIMIT_SWITCH = 5; // PLACEHOLDER
+const int BUZZER = 10; // PLACEHOLDER
+const int TAIL_LIMIT_SWITCH = 9; // PLACEHOLDER
+const int FRONT_LIMIT_SWITCH = 50; // PLACEHOLDER
 
 
 //Ultrasonic Sensors
@@ -45,8 +45,8 @@ const int trigFront = 39, echoFront = 38; // 40 is trigger-white, 41 is echo-gre
 const int trigLeft = 52, echoLeft = 53; // 52 is trigger-white, 53 is echo-green
 
 // Motors
-const int INPUT1_L = 42; //Left motor
-const int INPUT2_L = 43;
+const int INPUT1_L = 43; //Left motor
+const int INPUT2_L = 42;
 const int ENA_L = 2; //PWM
 const int SPEED_L = 100;
 const int SPEED_R = 100;
@@ -58,7 +58,9 @@ const int SERVO = 10;
 
 
 // Tape sensors
-
+const int RIGHT_TAPE_SENSOR = A3;
+const int MIDDLE_TAPE_SENSOR = A4;
+const int LEFT_TAPE_SENSOR = A5;
 
 /*---------------State Definitions--------------------------*/
 typedef enum {

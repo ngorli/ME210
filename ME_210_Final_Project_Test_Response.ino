@@ -4,7 +4,7 @@ extern States_t state;
 float START_ZONE_LENGTH = 40.64; // in centimeters (16 inches)
 float START_ZONE_WIDTH = 40.64; // in centimeters (16 inches)
 float MAP_LENGTH = 91.44;  // in centimeters (36 inches)
-float ROBOT_LENGTH =  25.40; // in centimeters (10 inches)
+float ROBOT_LENGTH =  17.78; // in centimeters (10 inches)
 
 /************************** DISTANCE THRESHOLDS **********************/
 float ULTRA_SONIC_DIST_THRESHOLD = 0.5; // PLACEHOLDER +- Threshold for determing what distances are equal
@@ -44,7 +44,7 @@ bool TestForFrontLimitSwitchTriggered(void) {
  * Returns true if the right tape sensor is triggered and false otherwise
  */
 bool TestForRightTapeSensorTriggered(void) {
-  // return RIGHT_TAPE_SENSOR > RIGHT_TAPE_SENSOR_THRESHOLD;
+  return analogRead(RIGHT_TAPE_SENSOR) > RIGHT_TAPE_SENSOR_THRESHOLD;
 }
 
 
@@ -52,7 +52,7 @@ bool TestForRightTapeSensorTriggered(void) {
  * Returns true if the left tape sensor is triggered and false otherwise
  */
 bool TestForLeftTapeSensorTriggered(void) {
-  // return LEFT_TAPE_SENSOR > LEFT_TAPE_SENSOR_THRESHOLD;
+  return analogRead(LEFT_TAPE_SENSOR) > LEFT_TAPE_SENSOR_THRESHOLD;
 }
 
 
@@ -60,7 +60,7 @@ bool TestForLeftTapeSensorTriggered(void) {
  * Returns true if the middle tape sensor is triggered and false otherwise
  */
 bool TestForMiddleTapeSensorTriggered(void) {
-  // return MIDDLE_TAPE_SENSOR > MIDDLE_TAPE_SENSOR_THRESHOLD;
+  return analogRead(MIDDLE_TAPE_SENSOR) > MIDDLE_TAPE_SENSOR_THRESHOLD;
 }
 
 
@@ -100,6 +100,10 @@ bool TestForUltraSonicsEqual(void) {
   float front_reading = getUltraSonicFront();
   float back_reading = getUltraSonicBack();
   float left_reading = getUltraSonicLeft();
+  Serial.print("Front reading");
+  Serial.println(front_reading);
+  Serial.print("Back reading");
+  Serial.println(back_reading);
 
   if (abs(MAP_LENGTH - (front_reading + back_reading + ROBOT_LENGTH)) < ULTRA_SONIC_DIST_THRESHOLD) {
     return true;
@@ -146,9 +150,11 @@ void RespToBackSensorMoreThanStartZone(void) {
   if(getUltraSonicLeft() < START_ZONE_WIDTH / 2) {    
     LEFT_OF_TAPE = true;
     state = ORIENT_TURN_RIGHT;
+    Serial.println("turning right to find tape");
   } else {
     LEFT_OF_TAPE = false;
     state = ORIENT_TURN_LEFT;
+    Serial.println("turning left to find tape");
   }
 }
 
@@ -157,10 +163,12 @@ void RespToBackSensorMoreThanStartZone(void) {
  *
  */
 bool TestForOriented(void) {
+  Serial.println("trying to find tape");
   return TestForMiddleTapeSensorTriggered();
 }
 
 void RespToOriented(void) {
+  Serial.println("found tape");
   ORIENT = true;
   if(LEFT_OF_TAPE){
     state = ORIENT_TURN_LEFT;

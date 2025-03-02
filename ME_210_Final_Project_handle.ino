@@ -15,7 +15,6 @@ void playBuzzer(void){
   tone(BUZZER, 1000); // Play 1000Hz (1kHz) tone
   delay(500);   // Wait 500ms
   noTone(BUZZER);   // Stop tone
-  delay(500);   
 }
 
 
@@ -27,6 +26,8 @@ void handleInitOrientTurnLeft(void)
 {
   rightMotorBackward();
   leftMotorForward();
+  // playBuzzer();
+  // Serial.println(getUltraSonicFront());
   if(TestForUltraSonicsEqualAndBackLessThanStartZone()) RespToUltraSonicsEqualAndBackLessThanStartZone();
 }
 
