@@ -62,9 +62,12 @@ void handleOrientTurnRight(void)
     if (turnStartTime == 0) { 
       turnStartTime = millis();
     }
+    Serial.print("Turn start time is ");
+    Serial.println(turnStartTime);
 
     if (millis() - turnStartTime >= TURN_TIMER) {
-      turnComplete = true;
+      // turnComplete = true;
+      turnStartTime = 0;
       state = ORIENT_DRIVE_FORWARD;
     }
   }
@@ -84,8 +87,11 @@ void handleOrientTurnLeft(void)
     if (turnStartTime == 0) { 
       turnStartTime = millis();
     }
+    Serial.print("Turn start time is ");
+    Serial.println(turnStartTime);
     if (millis() - turnStartTime >= TURN_TIMER) {
-      turnComplete = true;
+      // turnComplete = true;
+      turnStartTime = 0;
       state = ORIENT_DRIVE_FORWARD;
     }
   }
@@ -110,7 +116,8 @@ void handleGetPotTurnRight(void)
       turnStartTime = millis();
     }
     if (millis() - turnStartTime >= TURN_TIMER) {
-      turnComplete = true;
+      // turnComplete = true;
+      turnStartTime = 0;
       state = GET_POT_DRIVE_FORWARD;
     }
   }
@@ -132,7 +139,8 @@ void handleGetPotTurnLeft(void)
       turnStartTime = millis();
     }
     if (millis() - turnStartTime >= TURN_TIMER) {
-      turnComplete = true;
+      // turnComplete = true;
+      turnStartTime = 0;
       state = GET_POT_DRIVE_FORWARD;
     }
   }
@@ -195,7 +203,8 @@ void handleTurnOnIgnitionTurnRight(void)
       turnStartTime = millis();
     }
     if (millis() - turnStartTime >= TURN_TIMER) {
-      turnComplete = true;
+      // turnComplete = true;
+      turnStartTime = 0;
       state = TURN_ON_IGNITION_REVERSE;
     }
   }
@@ -240,7 +249,8 @@ void handleDispenseBallTurnLeft(void)
       turnStartTime = millis();
     }
     if (millis() - turnStartTime >= TURN_TIMER) {
-      turnComplete = true;
+      // turnComplete = true;
+      turnStartTime = 0;
       state = DISPENSE_BALL_DRIVE_FORWARD;
     }
   }
@@ -289,7 +299,8 @@ void handleTurnOffIgnitionTurnLeft(void)
       turnStartTime = millis();
     }
     if (millis() - turnStartTime >= TURN_TIMER) {
-      turnComplete = true;
+      // turnComplete = true;
+      turnStartTime = 0;
       state = TURN_OFF_IGNITION_REVERSE;
     }
   }
@@ -322,5 +333,3 @@ void handleGameEnd(void)
   // play buzzer
   // motor off
 }
-
-
