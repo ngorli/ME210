@@ -20,7 +20,7 @@ bool LEFT_OF_TAPE = false; // Used to determine which side of the tape you are o
 bool ORIENT = false; // used to determine if orienting is complete
 bool HAVE_POT = false; // used to determine if we have the pot for get pot states
 bool SEARCHING_FOR_BURNER = false; // used to determine if we should be searching for the pot
-
+bool tape_hunting = false; // used to control infinite right turn loop
 
 /********************* LIMIT SWITCH FUNCTIONS *********************/
 /*
@@ -140,13 +140,18 @@ void RespToUltraSonicsEqualAndBackLessThanStartZone(void) {
  *
  */
 bool TestForBackSensorMoreThanStartZone(void) {
-  return getUltraSonicBack() > START_ZONE_LENGTH;
+  if (!tape_hunting && getUltraSonicBack() > START_ZONE_LENGTH){
+    return true;
+  } else {
+    return false;
+  }
 }
 
 /*
  *
  */
 void RespToBackSensorMoreThanStartZone(void) {
+  tape_hunting = true;
   if(getUltraSonicLeft() < START_ZONE_WIDTH / 2) {    
     LEFT_OF_TAPE = true;
     state = ORIENT_TURN_RIGHT;
@@ -290,4 +295,4 @@ bool TestForInlineWithIgnition(void) {
 
 void RespToInlineWithIgnition(void){
   state = TURN_OFF_IGNITION_TURN_LEFT;
-}
+}
