@@ -5,7 +5,7 @@ float START_ZONE_LENGTH = 40.64; // in centimeters (16 inches)
 float START_ZONE_WIDTH = 40.64; // in centimeters (16 inches)
 float MAP_LENGTH = 91.44;  // in centimeters (36 inches)
 float ROBOT_LENGTH =  17.78; // in centimeters (10 inches)
-float RIGHT_TURN_DISTANCE = 34; // in centimeters
+float RIGHT_TURN_DISTANCE = 35; // in centimeters
 
 
 /************************** DISTANCE THRESHOLDS **********************/
@@ -13,10 +13,10 @@ float ULTRA_SONIC_DIST_THRESHOLD = 1.5; // PLACEHOLDER +- Threshold for determin
 float RIGHT_TAPE_SENSOR_THRESHOLD = 40; // PLACEHOLDER Threshold for determining if the right taper sensor is triggered
 float LEFT_TAPE_SENSOR_THRESHOLD = 40; // PLACEHOLDERThreshold for determining if the left taper sensor is triggered
 float MIDDLE_TAPE_SENSOR_THRESHOLD = 40; // PLACEHOLDER Threshold for determining if the middle taper sensor is triggered
-float END_OF_MAP_THRESHOLD = 6.7;
-float CUSTOMER_WINDOW_THRESHOLD = 7.62; // PLAECHOLDER Threshold for determing if the customer window has been reached
-float POT_AT_BURNER_THRESHOLD = 100;  // PLAECHOLDER Threshold for determing if the pot has reached the burner
-float RIGHT_TURN_THRESHOLD = 0.1; // PLACEHOLDER Threshold for determining when to turn right after exiting starting square
+float END_OF_MAP_THRESHOLD = 35;
+float CUSTOMER_WINDOW_THRESHOLD = 12.24; // PLAECHOLDER Threshold for determing if the customer window has been reached
+float POT_AT_BURNER_THRESHOLD = 182.88;  // PLAECHOLDER Threshold for determing if the pot has reached the burner
+float RIGHT_TURN_THRESHOLD = 1; // PLACEHOLDER Threshold for determining when to turn right after exiting starting square
 
 
 /*********************** STATE DEFINITIONS ************************/
@@ -26,6 +26,10 @@ bool HAVE_POT = false; // used to determine if we have the pot for get pot state
 bool SEARCHING_FOR_BURNER = false; // used to determine if we should be searching for the pot
 bool tape_hunting = false; // used to control infinite right turn loop
 bool reached_window = false;
+
+bool first_pot_left = false;
+bool second_pot_left = false;
+bool third_pot_left = false;
 
 /********************* LIMIT SWITCH FUNCTIONS *********************/
 /*
@@ -49,8 +53,8 @@ bool TestForFrontLimitSwitchTriggered(void) {
  * Returns true if the right tape sensor is triggered and false otherwise
  */
 bool TestForRightTapeSensorTriggered(void) {
-  Serial.print("Print right tape sensor");
-  Serial.println(analogRead(RIGHT_TAPE_SENSOR));
+  // Serial.print("Print right tape sensor");
+  // Serial.println(analogRead(RIGHT_TAPE_SENSOR));
   return analogRead(RIGHT_TAPE_SENSOR) > RIGHT_TAPE_SENSOR_THRESHOLD;
 }
 
@@ -77,7 +81,7 @@ bool TestForMiddleTapeSensorTriggered(void) {
  */
 bool TestForLaneDriftLeft(void) {
   if(TestForRightTapeSensorTriggered()) {
-    Serial.println("Correct Left");
+    // Serial.println("Correct Left");
     SPEED_R = 0;
   } else {
     SPEED_R = START_SPEED;
@@ -89,7 +93,7 @@ bool TestForLaneDriftLeft(void) {
  */
 bool TestForLaneDriftRight(void) {
   if(TestForLeftTapeSensorTriggered()) {
-    Serial.println("Correct Right");
+    // Serial.println("Correct Right");
     SPEED_L = 0;
   } else {
     SPEED_L = START_SPEED;
@@ -111,13 +115,13 @@ bool TestForUltraSonicsEqual(void) {
   float front_reading = getUltraSonicFront();
   float back_reading = getUltraSonicBack();
   float left_reading = getUltraSonicLeft();
-  Serial.print("Front reading");
-  Serial.println(front_reading);
-  Serial.print("Back reading");
-  Serial.println(back_reading);
+  // Serial.print("Front reading");
+  // Serial.println(front_reading);
+  // Serial.print("Back reading");
+  // Serial.println(back_reading);
 
-  Serial.print("Thresh Value");
-  Serial.print(abs(MAP_LENGTH - (front_reading + back_reading + ROBOT_LENGTH)));
+  // Serial.print("Thresh Value");
+  // Serial.print(abs(MAP_LENGTH - (front_reading + back_reading + ROBOT_LENGTH)));
 
   if (abs(MAP_LENGTH - (front_reading + back_reading + ROBOT_LENGTH)) < ULTRA_SONIC_DIST_THRESHOLD) {
     return true;
@@ -190,7 +194,7 @@ void RespToOriented(void) {
   Serial.println("found tape");
   ORIENT = true;
   if(LEFT_OF_TAPE){
-    state = ORIENT_TURN_LEFT;
+    state = ORIENT_TURN_RIGHT;
   } else {
     state = ORIENT_TURN_RIGHT;
   }
@@ -210,7 +214,7 @@ bool TestForGetPot(void) {
 
 
 void RespToGetPot(void) {
-  state = GET_POT_TURN_RIGHT;
+  // state = GET_POT_TURN_RIGHT;
 }
 
 
@@ -218,17 +222,21 @@ void RespToGetPot(void) {
  *
  */
 bool TestForAtCustomerWindowIntersection(void) {
-  if ((abs(getUltraSonicFront() - END_OF_MAP_THRESHOLD) < RIGHT_TURN_THRESHOLD) && !reached_window ){
+  if ( (getUltraSonicFront() < END_OF_MAP_THRESHOLD)  && !reached_window ){
     reached_window = true;
     return true;
   } else {
+    Serial.println(getUltraSonicFront());
     return false;
   }
 }
 
 
 void RespToAtCustomerWindowIntersection(void) {
+  SPEED_R = START_SPEED;
+  SPEED_L = START_SPEED;  
   state = GET_POT_TURN_LEFT;
+  Serial.println("STATE SWITCH");
 }
 
 
@@ -236,7 +244,7 @@ void RespToAtCustomerWindowIntersection(void) {
  *
  */
 bool TestForAtCustomerWindowWall(void) {
-  if ( (abs(getUltraSonicFront() - CUSTOMER_WINDOW_THRESHOLD) < RIGHT_TURN_THRESHOLD) && !HAVE_POT) {
+   if ( (getUltraSonicFront() < CUSTOMER_WINDOW_THRESHOLD)  && reached_window && !HAVE_POT) {
     return true;
   } else {
     return false;
@@ -245,6 +253,8 @@ bool TestForAtCustomerWindowWall(void) {
 
 void RespToAtCustomerWindowWall(void) {
   HAVE_POT = true;
+  SPEED_R = 200;
+  SPEED_L = 200;
   state = GET_POT_TURN_LEFT;
 }
 
@@ -253,7 +263,7 @@ void RespToAtCustomerWindowWall(void) {
  *
  */
 bool TestForPotOnBurner(void) {
-  if (getUltraSonicFront() < POT_AT_BURNER_THRESHOLD && HAVE_POT) {
+  if (getUltraSonicBack() > POT_AT_BURNER_THRESHOLD && HAVE_POT) {
     return true;
   } else {
     return false;
@@ -269,7 +279,7 @@ void RespToPotOnBurner(void) {
  *
  */
 bool TestForIgnitionStopReversing(void){
-  if (ignitionReverseComplete || (TestForMiddleTapeSensorTriggered() && !SEARCHING_FOR_BURNER)){
+  if (getUltraSonicBack() || (TestForMiddleTapeSensorTriggered() && !SEARCHING_FOR_BURNER)){
     return true;
   } else {
     return false;

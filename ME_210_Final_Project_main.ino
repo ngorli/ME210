@@ -16,7 +16,7 @@ unsigned long gameStartTime = 0;
 bool gameRunning = true;
 
 // Timer durations
-const unsigned long TURN_TIMER = 850;
+const unsigned long TURN_TIMER = 900;
 const unsigned long IGNITION_ON_TIMER = 1500;
 const unsigned long DISPENSING_TIMER = 1500;
 
@@ -71,8 +71,8 @@ const int LEFT_TAPE_SENSOR = A5;
 
 /*---------------State Definitions--------------------------*/
 typedef enum {
-  INIT_ORIENT_TURN_LEFT, ORIENT_DRIVE_FORWARD, ORIENT_TURN_RIGHT, ORIENT_TURN_LEFT,
-  GET_POT_TURN_RIGHT, GET_POT_TURN_LEFT, GET_POT_DRIVE_FORWARD, TURN_ON_IGNITION_TURN_RIGHT,
+  INIT_ORIENT, ORIENT_DRIVE_FORWARD, ORIENT_TURN_RIGHT,
+  GET_POT_TURN_LEFT, GET_POT_DRIVE_FORWARD, TURN_ON_IGNITION_TURN_RIGHT,
   TURN_ON_IGNITION_REVERSE, DISPENSE_BALL_DRIVE_FORWARD, DISPENSE_BALL_TURN_LEFT,
   DISPENSE_BALLS, TURN_OFF_IGNITION_REVERSE, TURN_OFF_IGNITION_TURN_LEFT, 
   WAITING_FOR_GAME_END, GAME_END
@@ -127,7 +127,7 @@ void setup()
   /*********** BEGIN GAME ************/
   // playBuzzer();
   gameStartTime = millis();
-  state = INIT_ORIENT_TURN_LEFT;
+  state = GET_POT_DRIVE_FORWARD;
 
 
   Serial.println("Init Done");
@@ -150,9 +150,9 @@ void loop()
      * This state is used to turn the robot left until it is face
      * forward in the start zone
      */
-    case INIT_ORIENT_TURN_LEFT:
-      handleInitOrientTurnLeft();
-      // Serial.println("State INIT_ORIENT_TURN_LEFT");
+    case INIT_ORIENT:
+      handleInitOrient();
+      Serial.println("State INIT_ORIENT_TURN_LEFT");
       break;
     /*
      * This state is used to drive the robot forward until it
@@ -163,23 +163,13 @@ void loop()
       Serial.println("State ORIENT_DRIVE_FORWARD");
       break;
     /*
-     * This state is used to turn right and face the tape
-     * if the robot is starting to the left of the tape
+     * This state is used to turn left and face the tape
+     * if the robot is starting to the right of the tape
      */
     case ORIENT_TURN_RIGHT:
       handleOrientTurnRight();
       Serial.println("State ORIENT_DRIVE_RIGHT");
       break;
-    /*
-     * This state is used to turn left and face the tape
-     * if the robot is starting to the right of the tape
-     */
-    case ORIENT_TURN_LEFT:
-      handleOrientTurnLeft();
-      Serial.println("State ORIENT_DRIVE_RIGHT");
-      break;
-
-
 
 
     /*
@@ -188,23 +178,13 @@ void loop()
      */
 
 
-
-
-    /*
-     * This state is used to turn the robot right within the getting pot
-     * sequence
-     */
-    case GET_POT_TURN_RIGHT:
-      handleGetPotTurnRight();
-      // Serial.println("State GET_POT_TURN_RIGHT");
-      break;
     /*
      * This state is used to turn the robot left within the getting pot
      * sequence
      */
     case GET_POT_TURN_LEFT:
       handleGetPotTurnLeft();
-      // Serial.println("State GET_POT_TURN_LEFT");
+      Serial.println("State GET_POT_TURN_LEFT");
       break;
     /*
      * This state is used to drive the robot forward during the
@@ -229,14 +209,14 @@ void loop()
      */
     case TURN_ON_IGNITION_TURN_RIGHT:
       handleTurnOnIgnitionTurnRight();
-      // Serial.println("State TURN_ON_IGNITION_TURN_RIGHT");
+      Serial.println("State TURN_ON_IGNITION_TURN_RIGHT");
       break;
     /*
      * This state is used to reverse when approaching the ignition to turn it on
      */
     case TURN_ON_IGNITION_REVERSE:
-      handleGetPotDriveForward();
-      // Serial.println("State TURN_ON_IGNITION_REVERSE");
+      handleTurnOnIgnitionReverse();
+      Serial.println("State TURN_ON_IGNITION_REVERSE");
       break;
     /*
      * These states are used for dispensing the balls, after coming from the ignition.
@@ -248,14 +228,14 @@ void loop()
      */
     case DISPENSE_BALL_DRIVE_FORWARD:
       handleDispenseBallDriveForward();
-      // Serial.println("State DISPENSE_BALL_DRIVE_FORWARD");
+      Serial.println("State DISPENSE_BALL_DRIVE_FORWARD");
       break;
     /*
      * This state is used to turn left when approaching the pot to dispense balls
      */
     case DISPENSE_BALL_TURN_LEFT:
       handleDispenseBallTurnLeft();
-      // Serial.println("State DISPENSE_BALL_TURN_LEFT");
+      Serial.println("State DISPENSE_BALL_TURN_LEFT");
       break;
     /*
      * This is the state that will dispense balls by opening the gate
@@ -263,7 +243,7 @@ void loop()
      */
     case DISPENSE_BALLS:
       handleDispenseBalls();
-      // Serial.println("State DISPENSE_BALL_OPEN_GATE");
+      Serial.println("State DISPENSE_BALL_OPEN_GATE");
       break;
     
 
@@ -277,7 +257,7 @@ void loop()
      */
     case TURN_OFF_IGNITION_REVERSE:
       handleTurnOffIgnitionReverse();
-      // Serial.println("State TURN_OFF_IGNITION_REVERSE");
+      Serial.println("State TURN_OFF_IGNITION_REVERSE");
       break;
     /*
      * This state is used for turning left when approaching the ignition to
@@ -285,7 +265,7 @@ void loop()
      */
     case TURN_OFF_IGNITION_TURN_LEFT:
       handleTurnOffIgnitionTurnLeft();
-      // Serial.println("State TURN_OFF_IGNITION_TURN_LEFT");
+      Serial.println("State TURN_OFF_IGNITION_TURN_LEFT");
       break;
 
 

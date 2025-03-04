@@ -22,7 +22,7 @@ void playBuzzer(void){
  * This function is used to turn the robot left until it is facing
  * forward in the start zone
  */
-void handleInitOrientTurnLeft(void)
+void handleInitOrient(void)
 {
   // Serial.println(analogRead(LEFT_TAPE_SENSOR));
   rightMotorBackward();
@@ -45,9 +45,6 @@ void handleOrientDriveForward(void)
   rightMotorForward();
   leftMotorForward();
   if(TestForBackSensorMoreThanStartZone()) RespToBackSensorMoreThanStartZone();
-
-  // if(TestForOriented()) RespToOriented();
-  // if(TestForGetPot()) RespToGetPot();
 }
 
 
@@ -60,11 +57,11 @@ void handleOrientTurnRight(void)
 {
   leftMotorForward();
   rightMotorBackward();
+  Serial.println("Turn right");
   if (turnStartTime == 0) { 
     turnStartTime = millis();
   }
-
-  if (millis() - turnStartTime >= 700) {
+  if (millis() - turnStartTime >= 650) {
     turnStartTime = 0;
     state = GET_POT_DRIVE_FORWARD;
   }
@@ -73,55 +70,10 @@ void handleOrientTurnRight(void)
 
 
 
-/*
- * This function is used to turn the bot left in the orienting state
- */
-void handleOrientTurnLeft(void)
-{
-  rightMotorBackward();
-  leftMotorForward();
-  if (!turnComplete) {
-    if (turnStartTime == 0) { 
-      turnStartTime = millis();
-    }
-    Serial.print("Turn start time is ");
-    Serial.println(turnStartTime);
-    if (millis() - turnStartTime >= TURN_TIMER) {
-      // turnComplete = true;
-      turnStartTime = 0;
-      state = ORIENT_DRIVE_FORWARD;
-    }
-  }
-}
-
 
 
 
 /********************** POT RETRIEVAL HANDLING *******************/
-
-
-/*
- * This function is used to turn the robot to the right during
- * pot retrieval states
- */
-void handleGetPotTurnRight(void)
-{
-  rightMotorForward();
-  leftMotorBackward();
-  if (!turnComplete) {
-    if (turnStartTime == 0) { 
-      turnStartTime = millis();
-    }
-    if (millis() - turnStartTime >= TURN_TIMER) {
-      // turnComplete = true;
-      turnStartTime = 0;
-      state = GET_POT_DRIVE_FORWARD;
-    }
-  }
-}
-
-
-
 
 /*
  * This function is used to turn the robot ot the left during pot
@@ -129,14 +81,17 @@ void handleGetPotTurnRight(void)
  */
 void handleGetPotTurnLeft(void)
 {
+  // Serial.println("GET POT TURN LEFT POST MOTOR");
+  Serial.println(getUltraSonicFront());
   rightMotorForward();
   leftMotorBackward();
+  // Serial.println("GET POT TURN LEFT AFTER MOTOR");
+
   if (turnStartTime == 0) { 
     turnStartTime = millis();
   }
-  Serial.print("Turn start time is ");
-  Serial.println(turnStartTime);
-
+  // Serial.print("Turn start time is ");
+  // Serial.println(turnStartTime);
   if (millis() - turnStartTime >= TURN_TIMER) {
     turnStartTime = 0;
     state = GET_POT_DRIVE_FORWARD;
@@ -155,13 +110,13 @@ void handleGetPotDriveForward(void)
 {
   rightMotorForward();
   leftMotorForward();
-  Serial.print("Left Motor Speed: ");
-  Serial.println(SPEED_L);
-  Serial.print("Right Motor Speed: ");
-  Serial.println(SPEED_R);
+  if (TestForPotOnBurner()) RespToPotOnBurner();
   if (TestForAtCustomerWindowIntersection()) RespToAtCustomerWindowIntersection();
   if (TestForAtCustomerWindowWall()) RespToAtCustomerWindowWall();
-  if (TestForPotOnBurner()) RespToPotOnBurner();
+  if (HAVE_POT){
+    SPEED_R = 255;
+    SPEED_L = 255;
+  }
   TestForLaneDriftLeft();
   TestForLaneDriftRight();
 }
@@ -199,8 +154,8 @@ void handleTurnOnIgnitionReverse(void)
  */
 void handleTurnOnIgnitionTurnRight(void)
 {
-  rightMotorForward();
-  leftMotorBackward();
+  rightMotorBackward();
+  leftMotorForward();
   if (!turnComplete) {
     if (turnStartTime == 0) { 
       turnStartTime = millis();
