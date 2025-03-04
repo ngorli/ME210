@@ -5,15 +5,16 @@ float START_ZONE_LENGTH = 40.64; // in centimeters (16 inches)
 float START_ZONE_WIDTH = 40.64; // in centimeters (16 inches)
 float MAP_LENGTH = 91.44;  // in centimeters (36 inches)
 float ROBOT_LENGTH =  17.78; // in centimeters (10 inches)
-float RIGHT_TURN_DISTANCE = 29; // in centimeters
+float RIGHT_TURN_DISTANCE = 34; // in centimeters
 
 
 /************************** DISTANCE THRESHOLDS **********************/
-float ULTRA_SONIC_DIST_THRESHOLD = 0.5; // PLACEHOLDER +- Threshold for determing what distances are equal
+float ULTRA_SONIC_DIST_THRESHOLD = 1.5; // PLACEHOLDER +- Threshold for determing what distances are equal
 float RIGHT_TAPE_SENSOR_THRESHOLD = 40; // PLACEHOLDER Threshold for determining if the right taper sensor is triggered
 float LEFT_TAPE_SENSOR_THRESHOLD = 40; // PLACEHOLDERThreshold for determining if the left taper sensor is triggered
 float MIDDLE_TAPE_SENSOR_THRESHOLD = 40; // PLACEHOLDER Threshold for determining if the middle taper sensor is triggered
-float CUSTOMER_WINDOW_THRESHOLD = 100; // PLAECHOLDER Threshold for determing if the customer window has been reached
+float END_OF_MAP_THRESHOLD = 6.7;
+float CUSTOMER_WINDOW_THRESHOLD = 7.62; // PLAECHOLDER Threshold for determing if the customer window has been reached
 float POT_AT_BURNER_THRESHOLD = 100;  // PLAECHOLDER Threshold for determing if the pot has reached the burner
 float RIGHT_TURN_THRESHOLD = 0.1; // PLACEHOLDER Threshold for determining when to turn right after exiting starting square
 
@@ -24,6 +25,7 @@ bool ORIENT = false; // used to determine if orienting is complete
 bool HAVE_POT = false; // used to determine if we have the pot for get pot states
 bool SEARCHING_FOR_BURNER = false; // used to determine if we should be searching for the pot
 bool tape_hunting = false; // used to control infinite right turn loop
+bool reached_window = false;
 
 /********************* LIMIT SWITCH FUNCTIONS *********************/
 /*
@@ -47,7 +49,8 @@ bool TestForFrontLimitSwitchTriggered(void) {
  * Returns true if the right tape sensor is triggered and false otherwise
  */
 bool TestForRightTapeSensorTriggered(void) {
-  // Serial.println(analogRead(RIGHT_TAPE_SENSOR));
+  Serial.print("Print right tape sensor");
+  Serial.println(analogRead(RIGHT_TAPE_SENSOR));
   return analogRead(RIGHT_TAPE_SENSOR) > RIGHT_TAPE_SENSOR_THRESHOLD;
 }
 
@@ -73,27 +76,23 @@ bool TestForMiddleTapeSensorTriggered(void) {
  * These Functions handle lane drifting
  */
 bool TestForLaneDriftLeft(void) {
-  if(TestForLeftTapeSensorTriggered()) {
-    SPEED_R = 75;
+  if(TestForRightTapeSensorTriggered()) {
+    Serial.println("Correct Left");
+    SPEED_R = 0;
   } else {
-    SPEED_R = 100;
+    SPEED_R = START_SPEED;
   }
 }
-
-
-// void RespToLaneDriftLeft(void) {
- 
-// }
-
 
 /*
  *
  */
 bool TestForLaneDriftRight(void) {
-  if(TestForRightTapeSensorTriggered()) {
-    SPEED_L = 75;
+  if(TestForLeftTapeSensorTriggered()) {
+    Serial.println("Correct Right");
+    SPEED_L = 0;
   } else {
-    SPEED_L = 100;
+    SPEED_L = START_SPEED;
   }
 }
 
@@ -116,6 +115,9 @@ bool TestForUltraSonicsEqual(void) {
   Serial.println(front_reading);
   Serial.print("Back reading");
   Serial.println(back_reading);
+
+  Serial.print("Thresh Value");
+  Serial.print(abs(MAP_LENGTH - (front_reading + back_reading + ROBOT_LENGTH)));
 
   if (abs(MAP_LENGTH - (front_reading + back_reading + ROBOT_LENGTH)) < ULTRA_SONIC_DIST_THRESHOLD) {
     return true;
@@ -216,7 +218,8 @@ void RespToGetPot(void) {
  *
  */
 bool TestForAtCustomerWindowIntersection(void) {
-  if(TestForMiddleTapeSensorTriggered() && TestForRightTapeSensorTriggered() && TestForLeftTapeSensorTriggered()){
+  if ((abs(getUltraSonicFront() - END_OF_MAP_THRESHOLD) < RIGHT_TURN_THRESHOLD) && !reached_window ){
+    reached_window = true;
     return true;
   } else {
     return false;
@@ -233,7 +236,7 @@ void RespToAtCustomerWindowIntersection(void) {
  *
  */
 bool TestForAtCustomerWindowWall(void) {
-  if (getUltraSonicFront() < CUSTOMER_WINDOW_THRESHOLD && !HAVE_POT) {
+  if ( (abs(getUltraSonicFront() - CUSTOMER_WINDOW_THRESHOLD) < RIGHT_TURN_THRESHOLD) && !HAVE_POT) {
     return true;
   } else {
     return false;

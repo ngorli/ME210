@@ -12,9 +12,9 @@ extern bool DISPENSING_COMPLETE;
  * This function is used to play the buzzer sound
  */
 void playBuzzer(void){
-  tone(BUZZER, 1000); // Play 1000Hz (1kHz) tone
-  delay(500);   // Wait 500ms
-  noTone(BUZZER);   // Stop tone
+  // tone(BUZZER, 1000); // Play 1000Hz (1kHz) tone
+  // delay(500);   // Wait 500ms
+  // noTone(BUZZER);   // Stop tone
 }
 
 
@@ -45,6 +45,7 @@ void handleOrientDriveForward(void)
   rightMotorForward();
   leftMotorForward();
   if(TestForBackSensorMoreThanStartZone()) RespToBackSensorMoreThanStartZone();
+
   // if(TestForOriented()) RespToOriented();
   // if(TestForGetPot()) RespToGetPot();
 }
@@ -57,20 +58,15 @@ void handleOrientDriveForward(void)
  */
 void handleOrientTurnRight(void)
 {
-  rightMotorBackward();
   leftMotorForward();
-  if (!turnComplete) {
-    if (turnStartTime == 0) { 
-      turnStartTime = millis();
-    }
-    Serial.print("Turn start time is ");
-    Serial.println(turnStartTime);
+  rightMotorBackward();
+  if (turnStartTime == 0) { 
+    turnStartTime = millis();
+  }
 
-    if (millis() - turnStartTime >= TURN_TIMER) {
-      // turnComplete = true;
-      turnStartTime = 0;
-      state = GET_POT_DRIVE_FORWARD;
-    }
+  if (millis() - turnStartTime >= 700) {
+    turnStartTime = 0;
+    state = GET_POT_DRIVE_FORWARD;
   }
 }
 
@@ -133,17 +129,17 @@ void handleGetPotTurnRight(void)
  */
 void handleGetPotTurnLeft(void)
 {
-  rightMotorBackward();
-  leftMotorForward();
-  if (!turnComplete) {
-    if (turnStartTime == 0) { 
-      turnStartTime = millis();
-    }
-    if (millis() - turnStartTime >= TURN_TIMER) {
-      // turnComplete = true;
-      turnStartTime = 0;
-      state = GET_POT_DRIVE_FORWARD;
-    }
+  rightMotorForward();
+  leftMotorBackward();
+  if (turnStartTime == 0) { 
+    turnStartTime = millis();
+  }
+  Serial.print("Turn start time is ");
+  Serial.println(turnStartTime);
+
+  if (millis() - turnStartTime >= TURN_TIMER) {
+    turnStartTime = 0;
+    state = GET_POT_DRIVE_FORWARD;
   }
 }
 
@@ -159,6 +155,10 @@ void handleGetPotDriveForward(void)
 {
   rightMotorForward();
   leftMotorForward();
+  Serial.print("Left Motor Speed: ");
+  Serial.println(SPEED_L);
+  Serial.print("Right Motor Speed: ");
+  Serial.println(SPEED_R);
   if (TestForAtCustomerWindowIntersection()) RespToAtCustomerWindowIntersection();
   if (TestForAtCustomerWindowWall()) RespToAtCustomerWindowWall();
   if (TestForPotOnBurner()) RespToPotOnBurner();

@@ -7,6 +7,7 @@
 
 /**************** Library Inclusion *************************/
 #include <Servo.h>
+#include <NewPing.h>
 
 
 /********************* Initialize Timers ********************/
@@ -15,7 +16,7 @@ unsigned long gameStartTime = 0;
 bool gameRunning = true;
 
 // Timer durations
-const unsigned long TURN_TIMER = 950;
+const unsigned long TURN_TIMER = 850;
 const unsigned long IGNITION_ON_TIMER = 1500;
 const unsigned long DISPENSING_TIMER = 1500;
 
@@ -38,18 +39,24 @@ const int BUZZER = 10; // PLACEHOLDER
 const int TAIL_LIMIT_SWITCH = 9; // PLACEHOLDER
 const int FRONT_LIMIT_SWITCH = 50; // PLACEHOLDER
 
+const int START_SPEED = 110;
+const int LOW_SPEED = 75;
 
 //Ultrasonic Sensors
+
 const int trigBack = 41, echoBack = 40;   // 41 is trigger-green, 40 is echo-white
-const int trigFront = 39, echoFront = 38; // 40 is trigger-white, 41 is echo-green
+NewPing backSensor(trigBack, echoBack, 300);
+const int trigFront = 38, echoFront = 39; // 40 is trigger-white, 41 is echo-green
+NewPing frontSensor(trigFront, echoFront, 300);
 const int trigLeft = 52, echoLeft = 53; // 52 is trigger-white, 53 is echo-green
+NewPing leftSensor(trigLeft, echoLeft, 300);
 
 // Motors
 const int INPUT1_L = 43; //Left motor
 const int INPUT2_L = 42;
 const int ENA_L = 2; //PWM
-int SPEED_L = 100;
-int SPEED_R = 100;
+int SPEED_L = START_SPEED;
+int SPEED_R = START_SPEED;
 const int INPUT1_R = 44; // Right Motor
 const int INPUT2_R = 45; //
 const int ENA_R = 3;
