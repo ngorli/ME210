@@ -15,7 +15,7 @@ unsigned long gameStartTime = 0;
 bool gameRunning = true;
 
 // Timer durations
-const unsigned long TURN_TIMER = 2000;
+const unsigned long TURN_TIMER = 950;
 const unsigned long IGNITION_ON_TIMER = 1500;
 const unsigned long DISPENSING_TIMER = 1500;
 
@@ -48,8 +48,8 @@ const int trigLeft = 52, echoLeft = 53; // 52 is trigger-white, 53 is echo-green
 const int INPUT1_L = 43; //Left motor
 const int INPUT2_L = 42;
 const int ENA_L = 2; //PWM
-const int SPEED_L = 100;
-const int SPEED_R = 100;
+int SPEED_L = 100;
+int SPEED_R = 100;
 const int INPUT1_R = 44; // Right Motor
 const int INPUT2_R = 45; //
 const int ENA_R = 3;
@@ -205,7 +205,7 @@ void loop()
      */
     case GET_POT_DRIVE_FORWARD:
       handleGetPotDriveForward();
-      // Serial.println("State GET_POT_DRIVE_FORWARD");
+      Serial.println("State GET_POT_DRIVE_FORWARD");
       break;
 
 

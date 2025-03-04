@@ -24,6 +24,7 @@ void playBuzzer(void){
  */
 void handleInitOrientTurnLeft(void)
 {
+  // Serial.println(analogRead(LEFT_TAPE_SENSOR));
   rightMotorBackward();
   leftMotorForward();
   // playBuzzer();
@@ -44,8 +45,8 @@ void handleOrientDriveForward(void)
   rightMotorForward();
   leftMotorForward();
   if(TestForBackSensorMoreThanStartZone()) RespToBackSensorMoreThanStartZone();
-  if(TestForOriented()) RespToOriented();
-  if(TestForGetPot()) RespToGetPot();
+  // if(TestForOriented()) RespToOriented();
+  // if(TestForGetPot()) RespToGetPot();
 }
 
 
@@ -56,8 +57,8 @@ void handleOrientDriveForward(void)
  */
 void handleOrientTurnRight(void)
 {
-  rightMotorForward();
-  leftMotorBackward();
+  rightMotorBackward();
+  leftMotorForward();
   if (!turnComplete) {
     if (turnStartTime == 0) { 
       turnStartTime = millis();
@@ -68,7 +69,7 @@ void handleOrientTurnRight(void)
     if (millis() - turnStartTime >= TURN_TIMER) {
       // turnComplete = true;
       turnStartTime = 0;
-      state = ORIENT_DRIVE_FORWARD;
+      state = GET_POT_DRIVE_FORWARD;
     }
   }
 }
@@ -161,6 +162,8 @@ void handleGetPotDriveForward(void)
   if (TestForAtCustomerWindowIntersection()) RespToAtCustomerWindowIntersection();
   if (TestForAtCustomerWindowWall()) RespToAtCustomerWindowWall();
   if (TestForPotOnBurner()) RespToPotOnBurner();
+  TestForLaneDriftLeft();
+  TestForLaneDriftRight();
 }
 
 

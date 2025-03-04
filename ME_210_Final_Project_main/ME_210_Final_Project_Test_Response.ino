@@ -5,14 +5,17 @@ float START_ZONE_LENGTH = 40.64; // in centimeters (16 inches)
 float START_ZONE_WIDTH = 40.64; // in centimeters (16 inches)
 float MAP_LENGTH = 91.44;  // in centimeters (36 inches)
 float ROBOT_LENGTH =  17.78; // in centimeters (10 inches)
+float RIGHT_TURN_DISTANCE = 29; // in centimeters
+
 
 /************************** DISTANCE THRESHOLDS **********************/
 float ULTRA_SONIC_DIST_THRESHOLD = 0.5; // PLACEHOLDER +- Threshold for determing what distances are equal
-float RIGHT_TAPE_SENSOR_THRESHOLD = 100; // PLACEHOLDER Threshold for determining if the right taper sensor is triggered
-float LEFT_TAPE_SENSOR_THRESHOLD = 100; // PLACEHOLDERThreshold for determining if the left taper sensor is triggered
-float MIDDLE_TAPE_SENSOR_THRESHOLD = 100; // PLACEHOLDER Threshold for determining if the middle taper sensor is triggered
+float RIGHT_TAPE_SENSOR_THRESHOLD = 40; // PLACEHOLDER Threshold for determining if the right taper sensor is triggered
+float LEFT_TAPE_SENSOR_THRESHOLD = 40; // PLACEHOLDERThreshold for determining if the left taper sensor is triggered
+float MIDDLE_TAPE_SENSOR_THRESHOLD = 40; // PLACEHOLDER Threshold for determining if the middle taper sensor is triggered
 float CUSTOMER_WINDOW_THRESHOLD = 100; // PLAECHOLDER Threshold for determing if the customer window has been reached
 float POT_AT_BURNER_THRESHOLD = 100;  // PLAECHOLDER Threshold for determing if the pot has reached the burner
+float RIGHT_TURN_THRESHOLD = 0.1; // PLACEHOLDER Threshold for determining when to turn right after exiting starting square
 
 
 /*********************** STATE DEFINITIONS ************************/
@@ -44,6 +47,7 @@ bool TestForFrontLimitSwitchTriggered(void) {
  * Returns true if the right tape sensor is triggered and false otherwise
  */
 bool TestForRightTapeSensorTriggered(void) {
+  // Serial.println(analogRead(RIGHT_TAPE_SENSOR));
   return analogRead(RIGHT_TAPE_SENSOR) > RIGHT_TAPE_SENSOR_THRESHOLD;
 }
 
@@ -69,26 +73,34 @@ bool TestForMiddleTapeSensorTriggered(void) {
  * These Functions handle lane drifting
  */
 bool TestForLaneDriftLeft(void) {
-  return TestForLeftTapeSensorTriggered();
+  if(TestForLeftTapeSensorTriggered()) {
+    SPEED_R = 75;
+  } else {
+    SPEED_R = 100;
+  }
 }
 
 
-void RespToLaneDriftLeft(void) {
+// void RespToLaneDriftLeft(void) {
  
-}
+// }
 
 
 /*
  *
  */
 bool TestForLaneDriftRight(void) {
-  return TestForRightTapeSensorTriggered();
+  if(TestForRightTapeSensorTriggered()) {
+    SPEED_L = 75;
+  } else {
+    SPEED_L = 100;
+  }
 }
 
 
-void RespToLaneDriftRight(void) {
+// void RespToLaneDriftRight(void) {
  
-}
+// }
 
 
 /******************** GENERAL FUNCTIONS ***********************/
@@ -140,7 +152,7 @@ void RespToUltraSonicsEqualAndBackLessThanStartZone(void) {
  *
  */
 bool TestForBackSensorMoreThanStartZone(void) {
-  if (!tape_hunting && getUltraSonicBack() > START_ZONE_LENGTH){
+  if (abs(getUltraSonicBack() - RIGHT_TURN_DISTANCE) < RIGHT_TURN_THRESHOLD ){
     return true;
   } else {
     return false;
@@ -151,16 +163,16 @@ bool TestForBackSensorMoreThanStartZone(void) {
  *
  */
 void RespToBackSensorMoreThanStartZone(void) {
-  tape_hunting = true;
-  if(getUltraSonicLeft() < START_ZONE_WIDTH / 2) {    
-    LEFT_OF_TAPE = true;
-    state = ORIENT_TURN_RIGHT;
-    Serial.println("turning right to find tape");
-  } else {
-    LEFT_OF_TAPE = false;
-    state = ORIENT_TURN_LEFT;
-    Serial.println("turning left to find tape");
-  }
+  // if(getUltraSonicLeft() < START_ZONE_WIDTH / 2) {    
+  //   LEFT_OF_TAPE = true;
+  //   state = ORIENT_TURN_RIGHT;
+  //   Serial.println("turning right to find tape");
+  // } else {
+  //   LEFT_OF_TAPE = false;
+  //   state = ORIENT_TURN_LEFT;
+  //   Serial.println("turning left to find tape");
+  // }
+  state = ORIENT_TURN_RIGHT;
 }
 
 
