@@ -83,30 +83,14 @@ bool TestForMiddleTapeSensorTriggered(void) {
  * These Functions handle lane drifting
  */
 void TestForLaneDriftLeft(void) {
-  // if(correction_done_r){
-  //   Serial.println("Correction Done R");
-  // } else {
-  //   Serial.println("Correction Not Done R");
-  //   Serial.print("Left Motor Speed: ");
-  //   Serial.println(SPEED_L);
-  //   Serial.print("Right Motor Speed: ");
-  //   Serial.println(SPEED_R);
-  // }
-  // if (TestForMiddleTapeSensorTriggered()){
-  //   correction_done_r = true;
-  // }
-  if (TestForMiddleTapeSensorTriggered()){
+  if (TestForMiddleTapeSensorTriggered() and correction_done_r){
     correction_done_l = true;
-    correction_done_r = true;
     SPEED_R = START_SPEED;
-    
   }else if(TestForRightTapeSensorTriggered() or !correction_done_l) {
-  // if(TestForRightTapeSensorTriggered()) {
-    // Serial.println("Correct Left");
     SPEED_R = 0;
-    SPEED_L = START_SPEED;
+    // SPEED_L = START_SPEED;
     correction_done_l = false;
-    correction_done_r = true;
+    // correction_done_r = true;
   }
 }
 
@@ -114,30 +98,14 @@ void TestForLaneDriftLeft(void) {
  *
  */
  void TestForLaneDriftRight(void) {
-  // if(correction_done_r){
-  //   Serial.println("Correction Done R");
-  // } else {
-  //   Serial.println("Correction Not Done R");
-  //   Serial.print("Left Motor Speed: ");
-  //   Serial.println(SPEED_L);
-  //   Serial.print("Right Motor Speed: ");
-  //   Serial.println(SPEED_R);
-  // }
-  // if (TestForMiddleTapeSensorTriggered()){
-  //   correction_done_r = true;
-  // }
-  if (TestForMiddleTapeSensorTriggered()){
+  if (TestForMiddleTapeSensorTriggered() and correction_done_l){
     correction_done_r = true;
-    correction_done_l = true;
     SPEED_L = START_SPEED;
   
   }else if(TestForLeftTapeSensorTriggered() or !correction_done_r) {
-  // if(TestForRightTapeSensorTriggered()) {
-    // Serial.println("Correct Left");
     SPEED_L = 0;
-    SPEED_R = START_SPEED;
     correction_done_r = false;
-    correction_done_l = true;
+    // correction_done_l = true;
   }
  }
 
@@ -298,23 +266,23 @@ void RespToAtCustomerWindowWall(void) {
   state = GET_POT_TURN_LEFT;
 }
 
-void TestCloseToWall(void) {
+bool TestCloseToWall(void) {
   return (getUltraSonicRight() < WALL_CLOSE_THRESH);
 }
 
 void RespCloseToWall(void) {
-  if(TestCloseToWall) {
+  if(TestCloseToWall()) {
     SPEED_L = 0;
   } else {
     SPEED_L = 255;
   }
 }
-void TestFarFromWall(void) {
+bool TestFarFromWall(void) {
   return (getUltraSonicRight() > WALL_FAR_THRESH);
 }
 
 void RespFarFromWall(void) {
-  if(TestCloseToWall) {
+  if(TestFarFromWall()) {
     SPEED_R = 0;
   } else {
     SPEED_R = 255;
