@@ -155,7 +155,7 @@ void loop()
      */
     case INIT_ORIENT:
       handleInitOrient();
-     Serial.println("State INIT_ORIENT");
+      Serial.println("State INIT_ORIENT");
       break;
     /*
      * This state is used to drive the robot forward until it
@@ -181,7 +181,7 @@ void loop()
     
     case IGNITE_ON:
       handleIgniteOn();
-     Serial.println("State IGNITE_ON");
+      Serial.println("State IGNITE_ON");
       break;
     case APPROACH_GET_POT:
       handleApproachGetPot();

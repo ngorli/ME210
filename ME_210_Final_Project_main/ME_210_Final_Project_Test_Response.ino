@@ -82,34 +82,34 @@ bool TestForMiddleTapeSensorTriggered(void) {
 /*
  * These Functions handle lane drifting
  */
-bool TestForLaneDriftLeft(void) {
-  // if(correction_done_l){
-  //   Serial.println("Correction Done L");
-  // } else {
-  //   Serial.println("Correction Not Done L");
-  //   Serial.print("Left Motor Speed: ");
-  //   Serial.println(SPEED_L);
-  //   Serial.print("Right Motor Speed: ");
-  //   Serial.println(SPEED_R);
-  // }
-  // if (TestForMiddleTapeSensorTriggered()){
-  //   correction_done_l = true;
-  // }
-  if(TestForRightTapeSensorTriggered()) {
+ void TestForLaneDriftLeft(void) {
+  if(correction_done_l){
+    Serial.println("Correction Done L");
+  } else {
+    Serial.println("Correction Not Done L");
+    Serial.print("Left Motor Speed: ");
+    Serial.println(SPEED_L);
+    Serial.print("Right Motor Speed: ");
+    Serial.println(SPEED_R);
+  }
+  if (TestForMiddleTapeSensorTriggered()){
+    correction_done_l = true;
+    SPEED_R = START_SPEED;
+  }else if(TestForRightTapeSensorTriggered() or !correction_done_l) {
   // if(TestForRightTapeSensorTriggered()) {
     // Serial.println("Correct Left");
     SPEED_R = 0;
+    SPEED_L = START_SPEED;
     correction_done_l = false;
-  } else {
-    SPEED_R = START_SPEED;
-    correction_done_l = true;
+    correction_done_r = true;
+
   }
 }
 
 /*
  *
  */
-bool TestForLaneDriftRight(void) {
+void TestForLaneDriftRight(void) {
   // if(correction_done_r){
   //   Serial.println("Correction Done R");
   // } else {
@@ -122,16 +122,68 @@ bool TestForLaneDriftRight(void) {
   // if (TestForMiddleTapeSensorTriggered()){
   //   correction_done_r = true;
   // }
-  if(TestForLeftTapeSensorTriggered()) {
-  // if(TestForLeftTapeSensorTriggered()) {
-    // Serial.println("Correct Right");
-    SPEED_L = 0;
-    correction_done_r = false;
-  } else {
-    SPEED_L = START_SPEED;
+  if (TestForMiddleTapeSensorTriggered()){
     correction_done_r = true;
+    SPEED_L = START_SPEED;
+  }else if(TestForLeftTapeSensorTriggered() or !correction_done_r) {
+  // if(TestForRightTapeSensorTriggered()) {
+    // Serial.println("Correct Left");
+    SPEED_L = 0;
+    SPEED_R = START_SPEED;
+    correction_done_r = false;
+    correction_done_l = true;
   }
 }
+// bool TestForLaneDriftLeft(void) {
+//   // if(correction_done_l){
+//   //   Serial.println("Correction Done L");
+//   // } else {
+//   //   Serial.println("Correction Not Done L");
+//   //   Serial.print("Left Motor Speed: ");
+//   //   Serial.println(SPEED_L);
+//   //   Serial.print("Right Motor Speed: ");
+//   //   Serial.println(SPEED_R);
+//   // }
+//   // if (TestForMiddleTapeSensorTriggered()){
+//   //   correction_done_l = true;
+//   // }
+//   if(TestForRightTapeSensorTriggered()) {
+//   // if(TestForRightTapeSensorTriggered()) {
+//     // Serial.println("Correct Left");
+//     SPEED_R = 0;
+//     correction_done_l = false;
+//   } else {
+//     SPEED_R = START_SPEED;
+//     correction_done_l = true;
+//   }
+// }
+
+// /*
+//  *
+//  */
+// bool TestForLaneDriftRight(void) {
+//   // if(correction_done_r){
+//   //   Serial.println("Correction Done R");
+//   // } else {
+//   //   Serial.println("Correction Not Done R");
+//   //   Serial.print("Left Motor Speed: ");
+//   //   Serial.println(SPEED_L);
+//   //   Serial.print("Right Motor Speed: ");
+//   //   Serial.println(SPEED_R);
+//   // }
+//   // if (TestForMiddleTapeSensorTriggered()){
+//   //   correction_done_r = true;
+//   // }
+//   if(TestForLeftTapeSensorTriggered()) {
+//   // if(TestForLeftTapeSensorTriggered()) {
+//     // Serial.println("Correct Right");
+//     SPEED_L = 0;
+//     correction_done_r = false;
+//   } else {
+//     SPEED_L = START_SPEED;
+//     correction_done_r = true;
+//   }
+// }
 
 
 // void RespToLaneDriftRight(void) {

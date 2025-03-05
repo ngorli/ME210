@@ -68,14 +68,3 @@ float getUltraSonicRight()
   // return distance;
 
 }
-
-
-
-
-
-
-
-
-
-
-
