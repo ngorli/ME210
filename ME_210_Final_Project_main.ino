@@ -36,7 +36,7 @@ Servo myServo;
 /******************** Pin Definitions ***********************/
 
 const int BUZZER = 10; // PLACEHOLDER
-const int TAIL_LIMIT_SWITCH = 9; // PLACEHOLDER
+const int TAIL_LIMIT_SWITCH = 25; // PLACEHOLDER
 const int FRONT_LIMIT_SWITCH = 50; // PLACEHOLDER
 
 const int START_SPEED = 110;
@@ -77,7 +77,8 @@ typedef enum {
   GET_POT_TURN_LEFT, GET_POT_DRIVE_FORWARD, TURN_ON_IGNITION_TURN_RIGHT,
   TURN_ON_IGNITION_REVERSE, DISPENSE_BALL_DRIVE_FORWARD, DISPENSE_BALL_TURN_LEFT,
   DISPENSE_BALLS, TURN_OFF_IGNITION_REVERSE, TURN_OFF_IGNITION_TURN_LEFT, 
-  WAITING_FOR_GAME_END, GAME_END
+  WAITING_FOR_GAME_END, GAME_END,
+  APPROACH_GET_POT, IGNITE_ON, START_TRACKING_TAPE
 } States_t;
 
 
@@ -154,7 +155,7 @@ void loop()
      */
     case INIT_ORIENT:
       handleInitOrient();
-    //  Serial.println("State INIT_ORIENT_TURN_LEFT");
+     Serial.println("State INIT_ORIENT");
       break;
     /*
      * This state is used to drive the robot forward until it
@@ -162,7 +163,7 @@ void loop()
      */
     case ORIENT_DRIVE_FORWARD:
       handleOrientDriveForward();
-    //  Serial.println("State ORIENT_DRIVE_FORWARD");
+     Serial.println("State ORIENT_DRIVE_FORWARD");
       break;
     /*
      * This state is used to turn left and face the tape
@@ -170,7 +171,21 @@ void loop()
      */
     case ORIENT_TURN_RIGHT:
       handleOrientTurnRight();
-    //  Serial.println("State ORIENT_DRIVE_RIGHT");
+     Serial.println("State ORIENT_DRIVE_RIGHT");
+      break;
+
+    case START_TRACKING_TAPE:
+      handleStartTrackingTape();
+     Serial.println("State START_TRACKING_TAPE");
+      break;
+    
+    case IGNITE_ON:
+      handleIgniteOn();
+     Serial.println("State IGNITE_ON");
+      break;
+    case APPROACH_GET_POT:
+      handleApproachGetPot();
+     Serial.println("State APPROACH_GET_POT");
       break;
 
 

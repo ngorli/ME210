@@ -24,6 +24,12 @@ void playBuzzer(void){
  */
 void handleInitOrient(void)
 {
+  // if (TestForFrontLimitSwitchTriggered){
+  //   Serial.println("LIMIT SWITCH ON");
+  // } else {
+  //   Serial.println("LIMIT SWITCH OFF");
+  // }
+
   // Serial.println(analogRead(LEFT_TAPE_SENSOR));
   rightMotorBackward();
   leftMotorForward();
@@ -63,14 +69,44 @@ void handleOrientTurnRight(void)
   }
   if (millis() - turnStartTime >= 650) {
     turnStartTime = 0;
-    state = GET_POT_DRIVE_FORWARD;
+    state = START_TRACKING_TAPE;
   }
 }
 
 
+void handleStartTrackingTape(){
+  TestForLaneDriftLeft();
+  TestForLaneDriftRight();
+  leftMotorForward();
+  rightMotorForward();
+    if (turnStartTime == 0) { 
+    turnStartTime = millis();
+  }
+  if (millis() - turnStartTime >= 1500) {
+    turnStartTime = 0;
+    state = IGNITE_ON;
+  }
+}
 
+void handleIgniteOn(){
+  leftMotorBackward();
+  rightMotorBackward();
+  if (getUltraSonicBack() < 1){
+    state = APPROACH_GET_POT;
+  }
+}
 
-
+void handleApproachGetPot(){
+  leftMotorForward();
+  rightMotorForward();
+    if (turnStartTime == 0) { 
+    turnStartTime = millis();
+  }
+  if (millis() - turnStartTime >= 1000) {
+    turnStartTime = 0;
+    state = GET_POT_DRIVE_FORWARD;
+  }
+}
 
 
 /********************** POT RETRIEVAL HANDLING *******************/

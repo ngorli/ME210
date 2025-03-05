@@ -83,19 +83,19 @@ bool TestForMiddleTapeSensorTriggered(void) {
  * These Functions handle lane drifting
  */
 bool TestForLaneDriftLeft(void) {
-  if(correction_done_l){
-    Serial.println("Correction Done L");
-  } else {
-    Serial.println("Correction Not Done L");
-    Serial.print("Left Motor Speed: ");
-    Serial.println(SPEED_L);
-    Serial.print("Right Motor Speed: ");
-    Serial.println(SPEED_R);
-  }
-  if (TestForMiddleTapeSensorTriggered()){
-    correction_done_l = true;
-  }
-  if(TestForRightTapeSensorTriggered() or !correction_done_l) {
+  // if(correction_done_l){
+  //   Serial.println("Correction Done L");
+  // } else {
+  //   Serial.println("Correction Not Done L");
+  //   Serial.print("Left Motor Speed: ");
+  //   Serial.println(SPEED_L);
+  //   Serial.print("Right Motor Speed: ");
+  //   Serial.println(SPEED_R);
+  // }
+  // if (TestForMiddleTapeSensorTriggered()){
+  //   correction_done_l = true;
+  // }
+  if(TestForRightTapeSensorTriggered()) {
   // if(TestForRightTapeSensorTriggered()) {
     // Serial.println("Correct Left");
     SPEED_R = 0;
@@ -110,19 +110,19 @@ bool TestForLaneDriftLeft(void) {
  *
  */
 bool TestForLaneDriftRight(void) {
-  if(correction_done_r){
-    Serial.println("Correction Done R");
-  } else {
-    Serial.println("Correction Not Done R");
-    Serial.print("Left Motor Speed: ");
-    Serial.println(SPEED_L);
-    Serial.print("Right Motor Speed: ");
-    Serial.println(SPEED_R);
-  }
-  if (TestForMiddleTapeSensorTriggered()){
-    correction_done_r = true;
-  }
-  if(TestForLeftTapeSensorTriggered() or !correction_done_r) {
+  // if(correction_done_r){
+  //   Serial.println("Correction Done R");
+  // } else {
+  //   Serial.println("Correction Not Done R");
+  //   Serial.print("Left Motor Speed: ");
+  //   Serial.println(SPEED_L);
+  //   Serial.print("Right Motor Speed: ");
+  //   Serial.println(SPEED_R);
+  // }
+  // if (TestForMiddleTapeSensorTriggered()){
+  //   correction_done_r = true;
+  // }
+  if(TestForLeftTapeSensorTriggered()) {
   // if(TestForLeftTapeSensorTriggered()) {
     // Serial.println("Correct Right");
     SPEED_L = 0;
