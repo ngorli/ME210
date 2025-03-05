@@ -110,6 +110,8 @@ void handleGetPotDriveForward(void)
 {
   rightMotorForward();
   leftMotorForward();
+  RespCloseToWall();
+  RespFarFromWall();
   if (TestForPotOnBurner()) RespToPotOnBurner();
   if (TestForAtCustomerWindowIntersection()) RespToAtCustomerWindowIntersection();
   if (TestForAtCustomerWindowWall()) RespToAtCustomerWindowWall();

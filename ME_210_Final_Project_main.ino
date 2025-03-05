@@ -50,6 +50,8 @@ const int trigFront = 38, echoFront = 39; // 40 is trigger-white, 41 is echo-gre
 NewPing frontSensor(trigFront, echoFront, 300);
 const int trigLeft = 52, echoLeft = 53; // 52 is trigger-white, 53 is echo-green
 NewPing leftSensor(trigLeft, echoLeft, 300);
+const int trigRight = 26, echoRight = 27; // 26 is trigger-orange, 27 is echo-yellow
+NewPing rightSensor(trigRight, echoRight, 300);
 
 // Motors
 const int INPUT1_L = 43; //Left motor
@@ -127,7 +129,7 @@ void setup()
   /*********** BEGIN GAME ************/
   // playBuzzer();
   gameStartTime = millis();
-  state = GET_POT_DRIVE_FORWARD;
+  state = INIT_ORIENT;
 
 
   Serial.println("Init Done");
@@ -152,7 +154,7 @@ void loop()
      */
     case INIT_ORIENT:
       handleInitOrient();
-      Serial.println("State INIT_ORIENT_TURN_LEFT");
+    //  Serial.println("State INIT_ORIENT_TURN_LEFT");
       break;
     /*
      * This state is used to drive the robot forward until it
@@ -160,7 +162,7 @@ void loop()
      */
     case ORIENT_DRIVE_FORWARD:
       handleOrientDriveForward();
-      Serial.println("State ORIENT_DRIVE_FORWARD");
+    //  Serial.println("State ORIENT_DRIVE_FORWARD");
       break;
     /*
      * This state is used to turn left and face the tape
@@ -168,7 +170,7 @@ void loop()
      */
     case ORIENT_TURN_RIGHT:
       handleOrientTurnRight();
-      Serial.println("State ORIENT_DRIVE_RIGHT");
+    //  Serial.println("State ORIENT_DRIVE_RIGHT");
       break;
 
 
@@ -194,9 +196,6 @@ void loop()
       handleGetPotDriveForward();
       Serial.println("State GET_POT_DRIVE_FORWARD");
       break;
-
-
-
 
     /*
      * These states are used for turning on the ignition
@@ -295,5 +294,3 @@ void loop()
       Serial.println("SOMETHING IS WRONG, ROBOT IS COOKED :(");
   }
 }
-
-

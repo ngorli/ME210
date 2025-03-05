@@ -17,6 +17,8 @@ float END_OF_MAP_THRESHOLD = 35;
 float CUSTOMER_WINDOW_THRESHOLD = 12.24; // PLAECHOLDER Threshold for determing if the customer window has been reached
 float POT_AT_BURNER_THRESHOLD = 182.88;  // PLAECHOLDER Threshold for determing if the pot has reached the burner
 float RIGHT_TURN_THRESHOLD = 1; // PLACEHOLDER Threshold for determining when to turn right after exiting starting square
+float WALL_CLOSE_THRESH = 2; // PLACEHOLDER Threshould for determining if we are too close to the wall when finding or pushing the pot
+float WALL_FAR_THRESH = 15; // PLACEHOLDER Threshould for determining if we are too far from the wall when finding or pushing the pot
 
 
 /*********************** STATE DEFINITIONS ************************/
@@ -30,7 +32,7 @@ bool reached_window = false;
 bool first_pot_left = false;
 bool second_pot_left = false;
 bool third_pot_left = false;
-
+bool correction_done = true;
 /********************* LIMIT SWITCH FUNCTIONS *********************/
 /*
  * Returns true if the tail limit switch is triggered and false otherwise
@@ -80,11 +82,16 @@ bool TestForMiddleTapeSensorTriggered(void) {
  * These Functions handle lane drifting
  */
 bool TestForLaneDriftLeft(void) {
-  if(TestForRightTapeSensorTriggered()) {
+  if (TestForMiddleTapeSensorTriggered()){
+    correction_done = true;
+  }
+  if(TestForRightTapeSensorTriggered() or !correction_done) {
     // Serial.println("Correct Left");
     SPEED_R = 0;
+    correction_done = false;
   } else {
     SPEED_R = START_SPEED;
+    correction_done = true;
   }
 }
 
@@ -92,11 +99,16 @@ bool TestForLaneDriftLeft(void) {
  *
  */
 bool TestForLaneDriftRight(void) {
-  if(TestForLeftTapeSensorTriggered()) {
+  if (TestForMiddleTapeSensorTriggered()){
+    correction_done = true;
+  }
+  if(TestForLeftTapeSensorTriggered() or !correction_done) {
     // Serial.println("Correct Right");
     SPEED_L = 0;
+    correction_done = false;
   } else {
     SPEED_L = START_SPEED;
+    correction_done = true;
   }
 }
 
@@ -258,6 +270,28 @@ void RespToAtCustomerWindowWall(void) {
   state = GET_POT_TURN_LEFT;
 }
 
+void TestCloseToWall(void) {
+  return (getUltraSonicRight() < WALL_CLOSE_THRESH);
+}
+
+void RespCloseToWall(void) {
+  if(TestCloseToWall && HAVE_POT) {
+    SPEED_L = 0;
+  } else {
+    SPEED_L = 255;
+  }
+}
+void TestFarFromWall(void) {
+  return (getUltraSonicRight() > WALL_FAR_THRESH);
+}
+
+void RespFarFromWall(void) {
+  if(TestCloseToWall && HAVE_POT) {
+    SPEED_R = 0;
+  } else {
+    SPEED_R = 255;
+  }
+}
 
 /*
  *

@@ -54,3 +54,35 @@ float getUltraSonicLeft()
   // return distance;
 }
 
+float getUltraSonicRight()
+{
+  delay(50); // Short delay to prevent excessive readings
+  return rightSensor.ping_cm();
+  // digitalWrite(trigFront, LOW);
+  // delayMicroseconds(2);
+  // digitalWrite(trigFront, HIGH);
+  // delayMicroseconds(10);
+  // digitalWrite(trigFront, LOW);
+  // float duration = pulseIn(echoFront, HIGH);
+  // float distance = (duration * 0.0343) / 2; // Convert to cm
+  // return distance;
+
+}
+
+
+
+
+
+
+
+
+
+
+
+Message Aayush Wadehra, Josh, Nivitha Mavuluri
+
+
+
+
+
+
