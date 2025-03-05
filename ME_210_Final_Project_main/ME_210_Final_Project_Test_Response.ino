@@ -17,7 +17,7 @@ float END_OF_MAP_THRESHOLD = 35;
 float CUSTOMER_WINDOW_THRESHOLD = 12.24; // PLAECHOLDER Threshold for determing if the customer window has been reached
 float POT_AT_BURNER_THRESHOLD = 182.88;  // PLAECHOLDER Threshold for determing if the pot has reached the burner
 float RIGHT_TURN_THRESHOLD = 1; // PLACEHOLDER Threshold for determining when to turn right after exiting starting square
-float WALL_CLOSE_THRESH = 2; // PLACEHOLDER Threshould for determining if we are too close to the wall when finding or pushing the pot
+float WALL_CLOSE_THRESH = 5; // PLACEHOLDER Threshould for determining if we are too close to the wall when finding or pushing the pot
 float WALL_FAR_THRESH = 15; // PLACEHOLDER Threshould for determining if we are too far from the wall when finding or pushing the pot
 
 
