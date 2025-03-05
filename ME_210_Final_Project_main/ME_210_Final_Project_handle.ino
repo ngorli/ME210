@@ -85,18 +85,12 @@ void handleStartTrackingTape(){
   if (millis() - turnStartTime >= 1500) {
     turnStartTime = 0;
     state = IGNITE_ON;
-    SPEED_L = START_SPEED;
-    SPEED_R = START_SPEED;
   }
 }
 
 void handleIgniteOn(){
   leftMotorBackward();
   rightMotorBackward();
-  Serial.print("SPEED_L is ");
-  Serial.println(SPEED_L);
-  Serial.print("SPEED_R is ");
-  Serial.println(SPEED_R);
   if (getUltraSonicBack() < 1){
     state = APPROACH_GET_POT;
   }
@@ -155,15 +149,16 @@ void handleGetPotDriveForward(void)
   rightMotorForward();
   leftMotorForward();
   if(HAVE_POT){
-    // Could this be the reason that the resp functions are not working?
-    SPEED_R = 255;
-    SPEED_L = 255;
     RespCloseToWall();
     RespFarFromWall();
   }
   if (TestForPotOnBurner()) RespToPotOnBurner();
   if (TestForAtCustomerWindowIntersection()) RespToAtCustomerWindowIntersection();
   if (TestForAtCustomerWindowWall()) RespToAtCustomerWindowWall();
+  if (HAVE_POT){
+    SPEED_R = 255;
+    SPEED_L = 255;
+  }
   TestForLaneDriftLeft();
   TestForLaneDriftRight();
 }
