@@ -32,7 +32,8 @@ bool reached_window = false;
 bool first_pot_left = false;
 bool second_pot_left = false;
 bool third_pot_left = false;
-bool correction_done = true;
+bool correction_done_l = true;
+bool correction_done_r = true;
 /********************* LIMIT SWITCH FUNCTIONS *********************/
 /*
  * Returns true if the tail limit switch is triggered and false otherwise
@@ -82,16 +83,26 @@ bool TestForMiddleTapeSensorTriggered(void) {
  * These Functions handle lane drifting
  */
 bool TestForLaneDriftLeft(void) {
-  if (TestForMiddleTapeSensorTriggered()){
-    correction_done = true;
+  if(correction_done_l){
+    Serial.println("Correction Done L");
+  } else {
+    Serial.println("Correction Not Done L");
+    Serial.print("Left Motor Speed: ");
+    Serial.println(SPEED_L);
+    Serial.print("Right Motor Speed: ");
+    Serial.println(SPEED_R);
   }
-  if(TestForRightTapeSensorTriggered() or !correction_done) {
+  if (TestForMiddleTapeSensorTriggered()){
+    correction_done_l = true;
+  }
+  if(TestForRightTapeSensorTriggered() or !correction_done_l) {
+  // if(TestForRightTapeSensorTriggered()) {
     // Serial.println("Correct Left");
     SPEED_R = 0;
-    correction_done = false;
+    correction_done_l = false;
   } else {
     SPEED_R = START_SPEED;
-    correction_done = true;
+    correction_done_l = true;
   }
 }
 
@@ -99,16 +110,26 @@ bool TestForLaneDriftLeft(void) {
  *
  */
 bool TestForLaneDriftRight(void) {
-  if (TestForMiddleTapeSensorTriggered()){
-    correction_done = true;
+  if(correction_done_r){
+    Serial.println("Correction Done R");
+  } else {
+    Serial.println("Correction Not Done R");
+    Serial.print("Left Motor Speed: ");
+    Serial.println(SPEED_L);
+    Serial.print("Right Motor Speed: ");
+    Serial.println(SPEED_R);
   }
-  if(TestForLeftTapeSensorTriggered() or !correction_done) {
+  if (TestForMiddleTapeSensorTriggered()){
+    correction_done_r = true;
+  }
+  if(TestForLeftTapeSensorTriggered() or !correction_done_r) {
+  // if(TestForLeftTapeSensorTriggered()) {
     // Serial.println("Correct Right");
     SPEED_L = 0;
-    correction_done = false;
+    correction_done_r = false;
   } else {
     SPEED_L = START_SPEED;
-    correction_done = true;
+    correction_done_r = true;
   }
 }
 
@@ -275,7 +296,7 @@ void TestCloseToWall(void) {
 }
 
 void RespCloseToWall(void) {
-  if(TestCloseToWall && HAVE_POT) {
+  if(TestCloseToWall) {
     SPEED_L = 0;
   } else {
     SPEED_L = 255;
@@ -286,7 +307,7 @@ void TestFarFromWall(void) {
 }
 
 void RespFarFromWall(void) {
-  if(TestCloseToWall && HAVE_POT) {
+  if(TestCloseToWall) {
     SPEED_R = 0;
   } else {
     SPEED_R = 255;

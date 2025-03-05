@@ -108,10 +108,14 @@ void handleGetPotTurnLeft(void)
  */
 void handleGetPotDriveForward(void)
 {
+  Serial.print("Have pot is ");
+  Serial.println(HAVE_POT);
   rightMotorForward();
   leftMotorForward();
-  RespCloseToWall();
-  RespFarFromWall();
+  if(HAVE_POT){
+    RespCloseToWall();
+    RespFarFromWall();
+  }
   if (TestForPotOnBurner()) RespToPotOnBurner();
   if (TestForAtCustomerWindowIntersection()) RespToAtCustomerWindowIntersection();
   if (TestForAtCustomerWindowWall()) RespToAtCustomerWindowWall();
