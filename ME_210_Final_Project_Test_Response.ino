@@ -14,7 +14,7 @@ float RIGHT_TAPE_SENSOR_THRESHOLD = 40; // PLACEHOLDER Threshold for determining
 float LEFT_TAPE_SENSOR_THRESHOLD = 40; // PLACEHOLDERThreshold for determining if the left taper sensor is triggered
 float MIDDLE_TAPE_SENSOR_THRESHOLD = 40; // PLACEHOLDER Threshold for determining if the middle taper sensor is triggered
 float END_OF_MAP_THRESHOLD = 35;
-float CUSTOMER_WINDOW_THRESHOLD = 12.24; // PLAECHOLDER Threshold for determing if the customer window has been reached
+float CUSTOMER_WINDOW_THRESHOLD = 14.5; // PLAECHOLDER Threshold for determing if the customer window has been reached
 float POT_AT_BURNER_THRESHOLD = 182.88;  // PLAECHOLDER Threshold for determing if the pot has reached the burner
 float RIGHT_TURN_THRESHOLD = 1; // PLACEHOLDER Threshold for determining when to turn right after exiting starting square
 float WALL_CLOSE_THRESH = 2; // PLACEHOLDER Threshould for determining if we are too close to the wall when finding or pushing the pot
@@ -326,7 +326,7 @@ bool TestForPotOnBurner(void) {
 }
 
 void RespToPotOnBurner(void) {
-  state = TURN_ON_IGNITION_REVERSE;
+  state = DISPENSE_BALL_REVERSE;
 }
 
 

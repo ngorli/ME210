@@ -3,7 +3,9 @@ extern bool TURN_COMPLETE;
 extern bool IGNITION_REVERSE_COMPLETE;
 extern bool DISPENSING_COMPLETE;
 
-
+bool LINE_DETECTING = false;
+float POT_DISPENSE_DIST = 30;
+bool READY_TO_DISPENSE = false;
 
 
 /*************************** OREINTATION HANDLING *******************/
@@ -29,12 +31,13 @@ void handleInitOrient(void)
   // } else {
   //   Serial.println("LIMIT SWITCH OFF");
   // }
+  // state = DISPENSE_BALLS;
 
   // Serial.println(analogRead(LEFT_TAPE_SENSOR));
   rightMotorBackward();
   leftMotorForward();
-  // playBuzzer();
-  // Serial.println(getUltraSonicFront());
+  // // playBuzzer();
+  // // Serial.println(getUltraSonicFront());
   if(TestForUltraSonicsEqualAndBackLessThanStartZone()) RespToUltraSonicsEqualAndBackLessThanStartZone();
 }
 
@@ -67,7 +70,7 @@ void handleOrientTurnRight(void)
   if (turnStartTime == 0) { 
     turnStartTime = millis();
   }
-  if (millis() - turnStartTime >= 650) {
+  if (millis() - turnStartTime >= 600) {
     turnStartTime = 0;
     state = START_TRACKING_TAPE;
   }
@@ -82,13 +85,15 @@ void handleStartTrackingTape(){
     if (turnStartTime == 0) { 
     turnStartTime = millis();
   }
-  if (millis() - turnStartTime >= 1500) {
+  if (millis() - turnStartTime >= 1750) {
     turnStartTime = 0;
     state = IGNITE_ON;
   }
 }
 
 void handleIgniteOn(){
+  SPEED_R = START_SPEED;
+  SPEED_L = START_SPEED;
   leftMotorBackward();
   rightMotorBackward();
   if (getUltraSonicBack() < 1){
@@ -99,7 +104,7 @@ void handleIgniteOn(){
 void handleApproachGetPot(){
   leftMotorForward();
   rightMotorForward();
-    if (turnStartTime == 0) { 
+  if (turnStartTime == 0) { 
     turnStartTime = millis();
   }
   if (millis() - turnStartTime >= 1000) {
@@ -117,6 +122,8 @@ void handleApproachGetPot(){
  */
 void handleGetPotTurnLeft(void)
 {
+  SPEED_R = START_SPEED;
+  SPEED_L = START_SPEED;
   // Serial.println("GET POT TURN LEFT POST MOTOR");
   Serial.println(getUltraSonicFront());
   rightMotorForward();
@@ -166,6 +173,88 @@ void handleGetPotDriveForward(void)
 
 
 
+void handleDispenseBallReverse(){
+  rightMotorBackward();
+  leftMotorBackward();
+  if (turnStartTime == 0) { 
+    turnStartTime = millis();
+  }
+  if (millis() - turnStartTime >= TURN_TIMER) {
+    turnStartTime = 0;
+    state = DISPENSE_BALL_TURN_LEFT;
+  }
+}
+
+void handleDispenseBallTurnLeft(){
+  rightMotorForward();
+  leftMotorBackward();
+  if (turnStartTime == 0) { 
+    turnStartTime = millis();
+  }
+  if (millis() - turnStartTime >= TURN_TIMER) {
+    turnStartTime = 0;
+    state = DISPENSE_BALL_DRIVE_FORWARD;
+  }
+}
+
+void handleDispenseBallDriveForward(){
+  rightMotorForward();
+  leftMotorForward();
+  if(LINE_DETECTING && getUltraSonicFront() > POT_DISPENSE_DIST){
+    TestForLaneDriftLeft();
+    TestForLaneDriftRight();
+  }
+  if (TestForMiddleTapeSensorTriggered() && !LINE_DETECTING){
+    LINE_DETECTING = true;
+    state = DISPENSE_BALL_TURN_RIGHT;
+  }
+  if(TestForMiddleTapeSensorTriggered() && TestForLeftTapeSensorTriggered() && TestForRightTapeSensorTriggered()){
+    READY_TO_DISPENSE = true;
+    LINE_DETECTING = false;
+    state = DISPENSE_BALL_TURN_RIGHT;
+  }
+}
+
+void handleDispenseBallTurnRight(){
+  rightMotorBackward();
+  leftMotorForward();
+  if (turnStartTime == 0) { 
+    turnStartTime = millis();
+  }
+  if (millis() - turnStartTime >= TURN_TIMER) {
+    turnStartTime = 0;
+    if (READY_TO_DISPENSE) {
+      state = FINAL_DISPENSE_BALL_FORWARD;
+    } else {
+      state = DISPENSE_BALL_DRIVE_FORWARD;
+    }
+  }
+}
+
+void handleFinalDispenseBallForward(){
+  rightMotorForward();
+  leftMotorForward();
+  if (getUltraSonicFront() < 3){
+    state = DISPENSE_BALLS;
+  }
+}
+
+/*
+ * This function is used to open the gate to dispense the balls
+ */
+ void handleDispenseBalls(void)
+ {
+   myServo.write(45);
+   delay(2000);  // Wait for 2 seconds
+   myServo.write(0);
+   delay(2000);  // Wait for 2 seconds
+   state = WAITING_FOR_GAME_END;
+ }
+
+
+
+
+
 /********************* IGNITION ON HANDLING *********************/
 
 
@@ -187,6 +276,8 @@ void handleTurnOnIgnitionReverse(void)
   }
 }
 
+
+/******************** BALL DISPENSING HANDLING ******************/
 
 
 
@@ -213,61 +304,6 @@ void handleTurnOnIgnitionTurnRight(void)
 
 
 
-/******************** BALL DISPENSING HANDLING ******************/
-
-
-/*
- * This function is used to turn drive the bot forward for dispensing
- * the balls. It is used to reach the interesection from the burner
- * and it is used  to drive up to the pot
- */
-void handleDispenseBallDriveForward(void)
-{
-  rightMotorForward();
-  leftMotorForward();
-  if(TestForFrontLimitSwitchTriggered()){
-    rightMotorOff();
-    leftMotorOff();
-    state = DISPENSE_BALLS;
-  }
-  if (TestForAtPotIntersectionFromBurner()) RespToAtPotIntersectionFromBurner();
-}
-
-
-
-
-/*
- * This function is used to turn left when approaching the pot to
- * dispense balls
- */
-void handleDispenseBallTurnLeft(void)
-{
-  rightMotorForward();
-  leftMotorBackward();
-  if (!turnComplete) {
-    if (turnStartTime == 0) { 
-      turnStartTime = millis();
-    }
-    if (millis() - turnStartTime >= TURN_TIMER) {
-      // turnComplete = true;
-      turnStartTime = 0;
-      state = DISPENSE_BALL_DRIVE_FORWARD;
-    }
-  }
-}
-
-
-/*
- * This function is used to open the gate to dispense the balls
- */
-void handleDispenseBalls(void)
-{
-  myServo.write(90);
-  delay(2000);  // Wait for 2 seconds
-  myServo.write(0);
-  delay(2000);  // Wait for 2 seconds
-  state = TURN_OFF_IGNITION_REVERSE;
-}
 
 
 

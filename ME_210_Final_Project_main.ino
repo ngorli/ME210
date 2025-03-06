@@ -16,7 +16,7 @@ unsigned long gameStartTime = 0;
 bool gameRunning = true;
 
 // Timer durations
-const unsigned long TURN_TIMER = 900;
+const unsigned long TURN_TIMER = 750;
 const unsigned long IGNITION_ON_TIMER = 1500;
 const unsigned long DISPENSING_TIMER = 1500;
 
@@ -39,7 +39,7 @@ const int BUZZER = 10; // PLACEHOLDER
 const int TAIL_LIMIT_SWITCH = 25; // PLACEHOLDER
 const int FRONT_LIMIT_SWITCH = 50; // PLACEHOLDER
 
-const int START_SPEED = 110;
+const int START_SPEED = 120;
 const int LOW_SPEED = 75;
 
 //Ultrasonic Sensors
@@ -63,7 +63,7 @@ const int INPUT1_R = 44; // Right Motor
 const int INPUT2_R = 45; //
 const int ENA_R = 3;
 
-const int SERVO = 10;
+const int SERVO = 29;
 
 
 // Tape sensors
@@ -78,7 +78,8 @@ typedef enum {
   TURN_ON_IGNITION_REVERSE, DISPENSE_BALL_DRIVE_FORWARD, DISPENSE_BALL_TURN_LEFT,
   DISPENSE_BALLS, TURN_OFF_IGNITION_REVERSE, TURN_OFF_IGNITION_TURN_LEFT, 
   WAITING_FOR_GAME_END, GAME_END,
-  APPROACH_GET_POT, IGNITE_ON, START_TRACKING_TAPE
+  APPROACH_GET_POT, IGNITE_ON, START_TRACKING_TAPE,
+  DISPENSE_BALL_REVERSE, DISPENSE_BALL_TURN_RIGHT, FINAL_DISPENSE_BALL_FORWARD
 } States_t;
 
 
@@ -244,6 +245,11 @@ void loop()
       handleDispenseBallDriveForward();
       Serial.println("State DISPENSE_BALL_DRIVE_FORWARD");
       break;
+    case FINAL_DISPENSE_BALL_FORWARD:
+      handleFinalDispenseBallForward();
+      Serial.println("State DISPENSE_BALL_DRIVE_FORWARD");
+      break;
+    /*
     /*
      * This state is used to turn left when approaching the pot to dispense balls
      */
@@ -251,6 +257,18 @@ void loop()
       handleDispenseBallTurnLeft();
       Serial.println("State DISPENSE_BALL_TURN_LEFT");
       break;
+    
+    
+      case DISPENSE_BALL_TURN_RIGHT:
+        handleDispenseBallTurnRight();
+        Serial.println("State DISPENSE_BALL_TURN_RIGHT");
+        break;
+    
+    
+      case DISPENSE_BALL_REVERSE:
+        handleDispenseBallReverse();
+        Serial.println("State DISPENSE_BALL_REVERSE");
+        break;
     /*
      * This is the state that will dispense balls by opening the gate
      * once at the pot
