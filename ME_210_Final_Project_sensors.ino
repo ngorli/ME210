@@ -4,7 +4,7 @@
  */
 float getUltraSonicBack()
 {
-  delay(50); // Short delay to prevent excessive readings
+  delay(25); // Short delay to prevent excessive readings
   return backSensor.ping_cm();
   // digitalWrite(trigBack, LOW);
   // delayMicroseconds(2);
@@ -22,7 +22,7 @@ float getUltraSonicBack()
  */
 float getUltraSonicFront()
 {
-  delay(50); // Short delay to prevent excessive readings
+  delay(25); // Short delay to prevent excessive readings
   return frontSensor.ping_cm();
   // digitalWrite(trigFront, LOW);
   // delayMicroseconds(2);
@@ -42,7 +42,7 @@ float getUltraSonicFront()
  */
 float getUltraSonicLeft()
 {
-  delay(10); // Short delay to prevent excessive readings
+  delay(25); // Short delay to prevent excessive readings
   return leftSensor.ping_cm();
   // digitalWrite(trigLeft, LOW);
   // delayMicroseconds(2);
@@ -56,7 +56,7 @@ float getUltraSonicLeft()
 
 float getUltraSonicRight()
 {
-  delay(50); // Short delay to prevent excessive readings
+  delay(25); // Short delay to prevent excessive readings
   return rightSensor.ping_cm();
   // digitalWrite(trigFront, LOW);
   // delayMicroseconds(2);

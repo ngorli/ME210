@@ -6,6 +6,8 @@ extern bool DISPENSING_COMPLETE;
 bool LINE_DETECTING = false;
 float POT_DISPENSE_DIST = 30;
 bool READY_TO_DISPENSE = false;
+bool FINAL_TURN = false;
+unsigned long GET_POT_TIMER = 0;
 
 
 /*************************** OREINTATION HANDLING *******************/
@@ -27,10 +29,11 @@ void playBuzzer(void){
 void handleInitOrient(void)
 { 
   // // // playBuzzer();
-  //Serial.println(getUltraSonicFront());
+
   rightMotorBackward();
   leftMotorForward();
   if(TestForUltraSonicsEqualAndBackLessThanStartZone()) RespToUltraSonicsEqualAndBackLessThanStartZone();
+
 }
 
 
@@ -62,7 +65,7 @@ void handleOrientTurnRight(void)
   if (turnStartTime == 0) { 
     turnStartTime = millis();
   }
-  if (millis() - turnStartTime >= 600) {
+  if (millis() - turnStartTime >= 820) {
     turnStartTime = 0;
     state = START_TRACKING_TAPE;
   }
@@ -77,23 +80,31 @@ void handleStartTrackingTape(){
     if (turnStartTime == 0) { 
     turnStartTime = millis();
   }
-  if (millis() - turnStartTime >= 1750) {
+  if (millis() - turnStartTime >= 1200) {
     turnStartTime = 0;
     state = IGNITE_ON;
   }
 }
 
 void handleIgniteOn(){
-  SPEED_R = START_SPEED_R;
-  SPEED_L = START_SPEED_L;
   leftMotorBackward();
   rightMotorBackward();
-  if (getUltraSonicBack() < 1){
+    SPEED_R = LINE_FOLLOW_HIGH_R_REV;
+    SPEED_L = LINE_FOLLOW_HIGH_L_REV;
+  if (getUltraSonicBack() < 3){
+    SPEED_R = 50;
+    SPEED_L = 60;
     state = APPROACH_GET_POT;
   }
+  // if (getUltraSonicBack() > 9){
+  //   TestForLaneDriftRightReverse();
+  //   TestForLaneDriftLeftReverse();  
+  // }
 }
 
 void handleApproachGetPot(){
+  SPEED_R = LINE_FOLLOW_HIGH_R_FWD;
+  SPEED_L = LINE_FOLLOW_HIGH_L_FWD;
   leftMotorForward();
   rightMotorForward();
   if (turnStartTime == 0) { 
@@ -114,12 +125,16 @@ void handleApproachGetPot(){
  */
 void handleGetPotTurnLeft(void)
 {
-  SPEED_R = START_SPEED_R;
-  SPEED_L = START_SPEED_L;
+  SPEED_R = LINE_FOLLOW_HIGH_R_FWD;
+  SPEED_L = LINE_FOLLOW_HIGH_L_FWD;
   // Serial.println("GET POT TURN LEFT POST MOTOR");
-  Serial.println(getUltraSonicFront());
+  // Serial.println(getUltraSonicFront());
   rightMotorForward();
   leftMotorBackward();
+  if(HAVE_POT) {
+    SPEED_L = PUSH_POT_L;
+    SPEED_R = PUSH_POT_R;
+  }
   // Serial.println("GET POT TURN LEFT AFTER MOTOR");
 
   if (turnStartTime == 0) { 
@@ -127,7 +142,7 @@ void handleGetPotTurnLeft(void)
   }
   // Serial.print("Turn start time is ");
   // Serial.println(turnStartTime);
-  if (millis() - turnStartTime >= TURN_TIMER) {
+  if (millis() - turnStartTime >= TURN_TIMER_POT_LEFT) {
     turnStartTime = 0;
     state = GET_POT_DRIVE_FORWARD;
   }
@@ -144,12 +159,15 @@ void handleGetPotTurnLeft(void)
 void handleGetPotDriveForward(void)
 {
   // Serial.println(getUltraSonicRight());
+  // if (GET_POT_TIMER == 0) { 
+  //   GET_POT_TIMER = millis();
+  // }
   rightMotorForward();
   leftMotorForward();
   if(HAVE_POT){
-    SPEED_R = START_SPEED_R + 5;
-    SPEED_L = START_SPEED_L;
-    TestPotPushDrift();
+    SPEED_R = PUSH_POT_R;
+    SPEED_L = PUSH_POT_L;
+    // TestPotPushDrift();
     // RespCloseToWall();
     // RespFarFromWall();
     if (TestForPotOnBurner()) RespToPotOnBurner();
@@ -158,7 +176,10 @@ void handleGetPotDriveForward(void)
   } else {
     TestForLaneDriftLeft();
     TestForLaneDriftRight();
-    if (TestForAtCustomerWindowIntersection()) RespToAtCustomerWindowIntersection();
+    if (millis() - GET_POT_TIMER >= 5000) {
+      if (TestForAtCustomerWindowIntersection()) RespToAtCustomerWindowIntersection();
+    // state = GET_POT_DRIVE_FORWARD;
+    }
   }  
 }
 
@@ -191,15 +212,16 @@ void handleDispenseBallTurnLeft(){
 void handleDispenseBallDriveForward(){
   rightMotorForward();
   leftMotorForward();
+  if ((TestForMiddleTapeSensorTriggered()) && !LINE_DETECTING){
+    LINE_DETECTING = true;
+    FINAL_TURN = true;
+    state = DISPENSE_BALL_TURN_RIGHT;
+  }
   if(LINE_DETECTING && getUltraSonicFront() > POT_DISPENSE_DIST){
     TestForLaneDriftLeft();
     TestForLaneDriftRight();
   }
-  if (TestForMiddleTapeSensorTriggered() && !LINE_DETECTING){
-    LINE_DETECTING = true;
-    state = DISPENSE_BALL_TURN_RIGHT;
-  }
-  if(TestForMiddleTapeSensorTriggered() && TestForLeftTapeSensorTriggered() && TestForRightTapeSensorTriggered()){
+  if( FINAL_TURN && (getUltraSonicFront() < 6) ){
     READY_TO_DISPENSE = true;
     LINE_DETECTING = false;
     state = DISPENSE_BALL_TURN_RIGHT;
@@ -223,9 +245,18 @@ void handleDispenseBallTurnRight(){
 }
 
 void handleFinalDispenseBallForward(){
+  SPEED_R = LINE_FOLLOW_HIGH_R_FWD;
+  SPEED_L = LINE_FOLLOW_HIGH_L_FWD;
   rightMotorForward();
   leftMotorForward();
   if (getUltraSonicFront() < 3){
+    state = DISPENSE_BALLS;
+  }
+  if (turnStartTime == 0) { 
+    turnStartTime = millis();
+  }
+  if (millis() - turnStartTime >= 4000) {
+    turnStartTime = 0;
     state = DISPENSE_BALLS;
   }
 }
@@ -235,11 +266,13 @@ void handleFinalDispenseBallForward(){
  */
  void handleDispenseBalls(void)
  {
-   myServo.write(45);
-   delay(2000);  // Wait for 2 seconds
-   myServo.write(0);
-   delay(2000);  // Wait for 2 seconds
-   state = WAITING_FOR_GAME_END;
+  rightMotorOff();
+  leftMotorOff();
+  myServo.write(0);
+  Serial.println("servo done");
+  delay(1000);
+  // myServo.write(0);
+  // delay(1000);
  }
 
 
@@ -359,4 +392,4 @@ void handleGameEnd(void)
 {
   // play buzzer
   // motor off
-}
+}                                           

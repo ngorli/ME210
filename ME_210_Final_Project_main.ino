@@ -17,6 +17,7 @@ bool gameRunning = true;
 
 // Timer durations
 const unsigned long TURN_TIMER = 900;
+const unsigned long TURN_TIMER_POT_LEFT = 785;
 const unsigned long IGNITION_ON_TIMER = 1500;
 const unsigned long DISPENSING_TIMER = 1500;
 
@@ -39,14 +40,27 @@ const int BUZZER = 10; // PLACEHOLDER
 const int TAIL_LIMIT_SWITCH = 25; // PLACEHOLDER
 const int FRONT_LIMIT_SWITCH = 50; // PLACEHOLDER
 
-const int START_SPEED_L = 100;
-const int START_SPEED_R = 108;
+const int START_SPEED_L = 140;
+const int START_SPEED_R = 156;
+const int REVERSE_SPEED_L = 155;
+const int REVERSE_SPEED_R = 170;
+const int LINE_FOLLOW_HIGH_R_FWD = 170;
+const int LINE_FOLLOW_HIGH_L_FWD = 160;
+const int LINE_FOLLOW_HIGH_R_REV = 180;
+const int LINE_FOLLOW_HIGH_L_REV = 165;
+const int LINE_FOLLOW_LOW_R_FWD = 155;
+const int LINE_FOLLOW_LOW_L_FWD = 105;
+const int LINE_FOLLOW_LOW_R_REV = 155;
+const int LINE_FOLLOW_LOW_L_REV = 105;
+const int PUSH_POT_L = 170; //160 and 170 right 
+const int PUSH_POT_R = 180;
+
 
 //Ultrasonic Sensors
 
-const int trigBack = 36, echoBack = 37;   // 41 is trigger-green, 40 is echo-white
+const int trigBack = 4, echoBack = 2;   // 41 is trigger-green, 40 is echo-white
 NewPing backSensor(trigBack, echoBack, 300);
-const int trigFront = 39, echoFront = 38; // 40 is trigger-white, 41 is echo-green
+const int trigFront = 10, echoFront = 9; // 40 is trigger-white, 41 is echo-green
 NewPing frontSensor(trigFront, echoFront, 300);
 const int trigLeft = 52, echoLeft = 53; // 52 is trigger-white, 53 is echo-green
 NewPing leftSensor(trigLeft, echoLeft, 300);
@@ -54,24 +68,22 @@ const int trigRight = 42, echoRight = 43; // 43 is trigger-green, 27 is echo-whi
 NewPing rightSensor(trigRight, echoRight, 300);
 
 // Motors
-const int INPUT1_L = 46; //Left motor
-const int INPUT2_L = 47;
-const int ENA_L = 2; //PWM
+const int INPUT1_L = 8; //Left motor
+const int INPUT2_L = 7;
+const int ENA_L = 5; //PWM
 int SPEED_L = START_SPEED_L;
 int SPEED_R = START_SPEED_R;
-int SPEED_DOWN_L = 77;
-int SPEED_DOWN_R = 82;
-const int INPUT1_R = 44; // Right Motor
-const int INPUT2_R = 45; //
-const int ENA_R = 5;
+const int INPUT1_R = 12; // Right Motor
+const int INPUT2_R = 11; //
+const int ENA_R = 6;
 
-const int SERVO = 29;
+const int SERVO = 3;
 
 
 // Tape sensors
-const int RIGHT_TAPE_SENSOR = A3;
-const int MIDDLE_TAPE_SENSOR = A4;
-const int LEFT_TAPE_SENSOR = A5;
+const int RIGHT_TAPE_SENSOR = A0;
+const int MIDDLE_TAPE_SENSOR = A1;
+const int LEFT_TAPE_SENSOR = A2;
 
 /*---------------State Definitions--------------------------*/
 typedef enum {
@@ -133,7 +145,8 @@ void setup()
   /*********** BEGIN GAME ************/
   // playBuzzer();
   gameStartTime = millis();
-  state = GET_POT_DRIVE_FORWARD;
+  state = INIT_ORIENT;
+
 
 
   Serial.println("Init Done");

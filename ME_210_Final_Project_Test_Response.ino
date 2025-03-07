@@ -4,20 +4,20 @@ extern States_t state;
 float START_ZONE_LENGTH = 40.64; // in centimeters (16 inches)
 float START_ZONE_WIDTH = 40.64; // in centimeters (16 inches)
 float MAP_LENGTH = 91.44;  // in centimeters (36 inches)
-float ROBOT_LENGTH =  17.78; // in centimeters (10 inches)
-float RIGHT_TURN_DISTANCE = 35; // in centimeters
-int TOO_CLOSE = 4; // in centimeters
-int TOO_FAR = 6; // in centimeters
+float ROBOT_LENGTH =  17.78; // in cenmeters (10 inches)
+float RIGHT_TURN_DISTANCE = 40; // in centimeters
+int TOO_CLOSE = 8; // in centimeters
+int TOO_FAR = 10; // in centimeters
 int FIELD_LENGTH = 243; // in centimeters
 
 
 /************************** DISTANCE THRESHOLDS **********************/
-float ULTRA_SONIC_DIST_THRESHOLD = 1.5; // PLACEHOLDER +- Threshold for determing what distances are equal
+float ULTRA_SONIC_DIST_THRESHOLD = 3; // PLACEHOLDER +- Threshold for determing what distances are equal
 float RIGHT_TAPE_SENSOR_THRESHOLD = 40; // PLACEHOLDER Threshold for determining if the right taper sensor is triggered
 float LEFT_TAPE_SENSOR_THRESHOLD = 40; // PLACEHOLDERThreshold for determining if the left taper sensor is triggered
 float MIDDLE_TAPE_SENSOR_THRESHOLD = 40; // PLACEHOLDER Threshold for determining if the middle taper sensor is triggered
 float END_OF_MAP_THRESHOLD = 35;
-float CUSTOMER_WINDOW_THRESHOLD = 14.5; // PLAECHOLDER Threshold for determing if the customer window has been reached
+float CUSTOMER_WINDOW_THRESHOLD = 13.5; // PLAECHOLDER Threshold for determing if the customer window has been reached
 float POT_AT_BURNER_THRESHOLD = 182.88;  // PLAECHOLDER Threshold for determing if the pot has reached the burner
 float RIGHT_TURN_THRESHOLD = 1; // PLACEHOLDER Threshold for determining when to turn right after exiting starting square
 float WALL_CLOSE_THRESH = 2; // PLACEHOLDER Threshould for determining if we are too close to the wall when finding or pushing the pot
@@ -115,9 +115,9 @@ bool TestForMiddleTapeSensorTriggered(void) {
 void TestForLaneDriftLeft(void) {
   if (TestForMiddleTapeSensorTriggered() and correction_done_r){
     correction_done_l = true;
-    SPEED_R = START_SPEED_R;
+    SPEED_R = LINE_FOLLOW_HIGH_R_FWD;
   }else if(TestForRightTapeSensorTriggered() or !correction_done_l) {
-    SPEED_R = SPEED_DOWN_R;
+    SPEED_R = LINE_FOLLOW_LOW_R_FWD;
     // SPEED_L = START_SPEED;
     correction_done_l = false;
     // correction_done_r = true;
@@ -130,27 +130,56 @@ void TestForLaneDriftLeft(void) {
  void TestForLaneDriftRight(void) {
   if (TestForMiddleTapeSensorTriggered() and correction_done_l){
     correction_done_r = true;
-    SPEED_L = START_SPEED_L;
+    SPEED_L = LINE_FOLLOW_HIGH_L_FWD;
   
   }else if(TestForLeftTapeSensorTriggered() or !correction_done_r) {
-    SPEED_L = SPEED_DOWN_L;
+    SPEED_L = LINE_FOLLOW_LOW_L_FWD;
+    correction_done_r = false;
+    // correction_done_l = true;
+  }
+ }
+
+void TestForLaneDriftLeftReverse(void) {
+  if (TestForMiddleTapeSensorTriggered() and correction_done_r){
+    correction_done_l = true;
+    SPEED_R = LINE_FOLLOW_HIGH_R_REV;
+  }else if(TestForRightTapeSensorTriggered() or !correction_done_l) {
+    SPEED_R = LINE_FOLLOW_LOW_R_REV;
+    // SPEED_L = START_SPEED;
+    correction_done_l = false;
+    // correction_done_r = true;
+  }
+}
+
+/*
+ *
+ */
+ void TestForLaneDriftRightReverse(void) {
+  if (TestForMiddleTapeSensorTriggered() and correction_done_l){
+    correction_done_r = true;
+    SPEED_L = LINE_FOLLOW_HIGH_L_REV;
+  
+  }else if(TestForLeftTapeSensorTriggered() or !correction_done_r) {
+    SPEED_L = LINE_FOLLOW_LOW_L_REV;
     correction_done_r = false;
     // correction_done_l = true;
   }
  }
 
 void TestPotPushDrift(void) {
-  if (!(FIELD_LENGTH - (getUltraSonicFront() + getUltraSonicBack() + ROBOT_LENGTH) < 2)) {
+  if (!(abs(FIELD_LENGTH - (getUltraSonicFront() + getUltraSonicBack() + ROBOT_LENGTH)) < 2)) {
     if(getUltraSonicRight() < TOO_CLOSE) {
-      SPEED_L = SPEED_DOWN_L - 5;
+      SPEED_R = LINE_FOLLOW_HIGH_R_FWD;
+      SPEED_L = LINE_FOLLOW_LOW_L_FWD;
       Serial.println("TOO CLOSE");
     } else if(getUltraSonicRight() > TOO_FAR) {
-      SPEED_R = SPEED_DOWN_R + 10;
+      SPEED_L = LINE_FOLLOW_HIGH_L_FWD;
+      SPEED_R = LINE_FOLLOW_LOW_R_FWD;
       Serial.println("TOO FAR");      
     }
   } else {
-    SPEED_R = START_SPEED_R;
-    SPEED_L = START_SPEED_L;
+    SPEED_R = START_SPEED_R + 40;
+    SPEED_L = START_SPEED_L + 40;
   }
 }
 // void RespToLaneDriftRight(void) {
