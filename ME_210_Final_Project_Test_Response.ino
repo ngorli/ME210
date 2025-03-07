@@ -6,8 +6,8 @@ float START_ZONE_WIDTH = 40.64; // in centimeters (16 inches)
 float MAP_LENGTH = 91.44;  // in centimeters (36 inches)
 float ROBOT_LENGTH =  17.78; // in centimeters (10 inches)
 float RIGHT_TURN_DISTANCE = 35; // in centimeters
-int TOO_CLOSE = 8; // in centimeters
-int TOO_FAR = 10; // in centimeters
+int TOO_CLOSE = 4; // in centimeters
+int TOO_FAR = 6; // in centimeters
 int FIELD_LENGTH = 243; // in centimeters
 
 
@@ -142,7 +142,7 @@ void TestForLaneDriftLeft(void) {
 void TestPotPushDrift(void) {
   if (!(FIELD_LENGTH - (getUltraSonicFront() + getUltraSonicBack() + ROBOT_LENGTH) < 2)) {
     if(getUltraSonicRight() < TOO_CLOSE) {
-      SPEED_L = SPEED_DOWN_L + 10;
+      SPEED_L = SPEED_DOWN_L - 5;
       Serial.println("TOO CLOSE");
     } else if(getUltraSonicRight() > TOO_FAR) {
       SPEED_R = SPEED_DOWN_R + 10;
