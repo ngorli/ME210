@@ -16,7 +16,7 @@ unsigned long gameStartTime = 0;
 bool gameRunning = true;
 
 // Timer durations
-const unsigned long TURN_TIMER = 750;
+const unsigned long TURN_TIMER = 900;
 const unsigned long IGNITION_ON_TIMER = 1500;
 const unsigned long DISPENSING_TIMER = 1500;
 
@@ -39,29 +39,31 @@ const int BUZZER = 10; // PLACEHOLDER
 const int TAIL_LIMIT_SWITCH = 25; // PLACEHOLDER
 const int FRONT_LIMIT_SWITCH = 50; // PLACEHOLDER
 
-const int START_SPEED = 120;
-const int LOW_SPEED = 75;
+const int START_SPEED_L = 100;
+const int START_SPEED_R = 108;
 
 //Ultrasonic Sensors
 
-const int trigBack = 41, echoBack = 40;   // 41 is trigger-green, 40 is echo-white
+const int trigBack = 36, echoBack = 37;   // 41 is trigger-green, 40 is echo-white
 NewPing backSensor(trigBack, echoBack, 300);
-const int trigFront = 38, echoFront = 39; // 40 is trigger-white, 41 is echo-green
+const int trigFront = 39, echoFront = 38; // 40 is trigger-white, 41 is echo-green
 NewPing frontSensor(trigFront, echoFront, 300);
 const int trigLeft = 52, echoLeft = 53; // 52 is trigger-white, 53 is echo-green
 NewPing leftSensor(trigLeft, echoLeft, 300);
-const int trigRight = 26, echoRight = 27; // 26 is trigger-orange, 27 is echo-yellow
+const int trigRight = 42, echoRight = 43; // 43 is trigger-green, 27 is echo-white
 NewPing rightSensor(trigRight, echoRight, 300);
 
 // Motors
-const int INPUT1_L = 43; //Left motor
-const int INPUT2_L = 42;
+const int INPUT1_L = 46; //Left motor
+const int INPUT2_L = 47;
 const int ENA_L = 2; //PWM
-int SPEED_L = START_SPEED;
-int SPEED_R = START_SPEED;
+int SPEED_L = START_SPEED_L;
+int SPEED_R = START_SPEED_R;
+int SPEED_DOWN_L = 77;
+int SPEED_DOWN_R = 82;
 const int INPUT1_R = 44; // Right Motor
 const int INPUT2_R = 45; //
-const int ENA_R = 3;
+const int ENA_R = 5;
 
 const int SERVO = 29;
 
@@ -131,7 +133,7 @@ void setup()
   /*********** BEGIN GAME ************/
   // playBuzzer();
   gameStartTime = millis();
-  state = INIT_ORIENT;
+  state = GET_POT_DRIVE_FORWARD;
 
 
   Serial.println("Init Done");
@@ -210,7 +212,7 @@ void loop()
      */
     case GET_POT_DRIVE_FORWARD:
       handleGetPotDriveForward();
-      Serial.println("State GET_POT_DRIVE_FORWARD");
+      // Serial.println("State GET_POT_DRIVE_FORWARD");
       break;
 
     /*

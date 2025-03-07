@@ -25,19 +25,11 @@ void playBuzzer(void){
  * forward in the start zone
  */
 void handleInitOrient(void)
-{
-  // if (TestForFrontLimitSwitchTriggered){
-  //   Serial.println("LIMIT SWITCH ON");
-  // } else {
-  //   Serial.println("LIMIT SWITCH OFF");
-  // }
-  // state = DISPENSE_BALLS;
-
-  // Serial.println(analogRead(LEFT_TAPE_SENSOR));
+{ 
+  // // // playBuzzer();
+  //Serial.println(getUltraSonicFront());
   rightMotorBackward();
   leftMotorForward();
-  // // playBuzzer();
-  // // Serial.println(getUltraSonicFront());
   if(TestForUltraSonicsEqualAndBackLessThanStartZone()) RespToUltraSonicsEqualAndBackLessThanStartZone();
 }
 
@@ -92,8 +84,8 @@ void handleStartTrackingTape(){
 }
 
 void handleIgniteOn(){
-  SPEED_R = START_SPEED;
-  SPEED_L = START_SPEED;
+  SPEED_R = START_SPEED_R;
+  SPEED_L = START_SPEED_L;
   leftMotorBackward();
   rightMotorBackward();
   if (getUltraSonicBack() < 1){
@@ -122,8 +114,8 @@ void handleApproachGetPot(){
  */
 void handleGetPotTurnLeft(void)
 {
-  SPEED_R = START_SPEED;
-  SPEED_L = START_SPEED;
+  SPEED_R = START_SPEED_R;
+  SPEED_L = START_SPEED_L;
   // Serial.println("GET POT TURN LEFT POST MOTOR");
   Serial.println(getUltraSonicFront());
   rightMotorForward();
@@ -151,25 +143,24 @@ void handleGetPotTurnLeft(void)
  */
 void handleGetPotDriveForward(void)
 {
-  Serial.print("Have pot is ");
-  Serial.println(HAVE_POT);
+  // Serial.println(getUltraSonicRight());
   rightMotorForward();
   leftMotorForward();
   if(HAVE_POT){
-    RespCloseToWall();
-    RespFarFromWall();
-  }
-  if (TestForPotOnBurner()) RespToPotOnBurner();
-  if (TestForAtCustomerWindowIntersection()) RespToAtCustomerWindowIntersection();
-  if (TestForAtCustomerWindowWall()) RespToAtCustomerWindowWall();
-  if (HAVE_POT){
-    SPEED_R = 255;
-    SPEED_L = 255;
-  }
-  TestForLaneDriftLeft();
-  TestForLaneDriftRight();
+    SPEED_R = START_SPEED_R + 5;
+    SPEED_L = START_SPEED_L;
+    TestPotPushDrift();
+    // RespCloseToWall();
+    // RespFarFromWall();
+    if (TestForPotOnBurner()) RespToPotOnBurner();
+  } else if(reached_window) {
+    if (TestForAtCustomerWindowWall()) RespToAtCustomerWindowWall();
+  } else {
+    TestForLaneDriftLeft();
+    TestForLaneDriftRight();
+    if (TestForAtCustomerWindowIntersection()) RespToAtCustomerWindowIntersection();
+  }  
 }
-
 
 
 

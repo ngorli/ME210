@@ -6,6 +6,9 @@ float START_ZONE_WIDTH = 40.64; // in centimeters (16 inches)
 float MAP_LENGTH = 91.44;  // in centimeters (36 inches)
 float ROBOT_LENGTH =  17.78; // in centimeters (10 inches)
 float RIGHT_TURN_DISTANCE = 35; // in centimeters
+int TOO_CLOSE = 8; // in centimeters
+int TOO_FAR = 10; // in centimeters
+int FIELD_LENGTH = 243; // in centimeters
 
 
 /************************** DISTANCE THRESHOLDS **********************/
@@ -82,58 +85,74 @@ bool TestForMiddleTapeSensorTriggered(void) {
 /*
  * These Functions handle lane drifting
  */
-bool TestForLaneDriftLeft(void) {
-  // if(correction_done_l){
-  //   Serial.println("Correction Done L");
-  // } else {
-  //   Serial.println("Correction Not Done L");
-  //   Serial.print("Left Motor Speed: ");
-  //   Serial.println(SPEED_L);
-  //   Serial.print("Right Motor Speed: ");
-  //   Serial.println(SPEED_R);
-  // }
-  // if (TestForMiddleTapeSensorTriggered()){
-  //   correction_done_l = true;
-  // }
-  if(TestForRightTapeSensorTriggered()) {
-  // if(TestForRightTapeSensorTriggered()) {
-    // Serial.println("Correct Left");
-    SPEED_R = 0;
-    correction_done_l = false;
-  } else {
-    SPEED_R = START_SPEED;
+// bool TestForLaneDriftLeft(void) {
+//   if(TestForRightTapeSensorTriggered()) {
+//   // if(TestForRightTapeSensorTriggered()) {
+//     // Serial.println("Correct Left");
+//     SPEED_R = 0;
+//     correction_done_l = false;
+//   } else {
+//     SPEED_R = START_SPEED_R;
+//     correction_done_l = true;
+//   }
+// }
+
+/*
+ *
+ */
+// bool TestForLaneDriftRight(void) {
+//   if(TestForLeftTapeSensorTriggered()) {
+//   // if(TestForLeftTapeSensorTriggered()) {
+//     // Serial.println("Correct Right");
+//     SPEED_L = 0;
+//     correction_done_r = false;
+//   } else {
+//     SPEED_L = START_SPEED_L;
+//     correction_done_r = true;
+//   }
+// }
+
+void TestForLaneDriftLeft(void) {
+  if (TestForMiddleTapeSensorTriggered() and correction_done_r){
     correction_done_l = true;
+    SPEED_R = START_SPEED_R;
+  }else if(TestForRightTapeSensorTriggered() or !correction_done_l) {
+    SPEED_R = SPEED_DOWN_R;
+    // SPEED_L = START_SPEED;
+    correction_done_l = false;
+    // correction_done_r = true;
   }
 }
 
 /*
  *
  */
-bool TestForLaneDriftRight(void) {
-  // if(correction_done_r){
-  //   Serial.println("Correction Done R");
-  // } else {
-  //   Serial.println("Correction Not Done R");
-  //   Serial.print("Left Motor Speed: ");
-  //   Serial.println(SPEED_L);
-  //   Serial.print("Right Motor Speed: ");
-  //   Serial.println(SPEED_R);
-  // }
-  // if (TestForMiddleTapeSensorTriggered()){
-  //   correction_done_r = true;
-  // }
-  if(TestForLeftTapeSensorTriggered()) {
-  // if(TestForLeftTapeSensorTriggered()) {
-    // Serial.println("Correct Right");
-    SPEED_L = 0;
-    correction_done_r = false;
-  } else {
-    SPEED_L = START_SPEED;
+ void TestForLaneDriftRight(void) {
+  if (TestForMiddleTapeSensorTriggered() and correction_done_l){
     correction_done_r = true;
+    SPEED_L = START_SPEED_L;
+  
+  }else if(TestForLeftTapeSensorTriggered() or !correction_done_r) {
+    SPEED_L = SPEED_DOWN_L;
+    correction_done_r = false;
+    // correction_done_l = true;
+  }
+ }
+
+void TestPotPushDrift(void) {
+  if (!(FIELD_LENGTH - (getUltraSonicFront() + getUltraSonicBack() + ROBOT_LENGTH) < 2)) {
+    if(getUltraSonicRight() < TOO_CLOSE) {
+      SPEED_L = SPEED_DOWN_L + 10;
+      Serial.println("TOO CLOSE");
+    } else if(getUltraSonicRight() > TOO_FAR) {
+      SPEED_R = SPEED_DOWN_R + 10;
+      Serial.println("TOO FAR");      
+    }
+  } else {
+    SPEED_R = START_SPEED_R;
+    SPEED_L = START_SPEED_L;
   }
 }
-
-
 // void RespToLaneDriftRight(void) {
  
 // }
@@ -266,8 +285,8 @@ bool TestForAtCustomerWindowIntersection(void) {
 
 
 void RespToAtCustomerWindowIntersection(void) {
-  SPEED_R = START_SPEED;
-  SPEED_L = START_SPEED;  
+  SPEED_R = START_SPEED_R;
+  SPEED_L = START_SPEED_L;  
   state = GET_POT_TURN_LEFT;
   Serial.println("STATE SWITCH");
 }
