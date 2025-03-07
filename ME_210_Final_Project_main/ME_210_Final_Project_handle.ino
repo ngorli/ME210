@@ -152,11 +152,12 @@ void handleGetPotDriveForward(void)
     RespCloseToWall();
     RespFarFromWall();
     if (TestForPotOnBurner()) RespToPotOnBurner();
+  } else if(reached_window) {
+    if (TestForAtCustomerWindowWall()) RespToAtCustomerWindowWall();
   } else {
     TestForLaneDriftLeft();
     TestForLaneDriftRight();
     if (TestForAtCustomerWindowIntersection()) RespToAtCustomerWindowIntersection();
-    if (TestForAtCustomerWindowWall()) RespToAtCustomerWindowWall();
   }  
 }
 
